@@ -210,7 +210,7 @@
 
 @push('scripts')
 <script type="module">
-import * as faceapi from '/node_modules/@vladmandic/face-api/dist/face-api.esm.js';
+import * as faceapi from '/js/face-api.esm.js';
 
 const MODELS_URL = '/face-models';
 const JENIS = '{{ !$sudahMasuk ? 'masuk' : 'keluar' }}';

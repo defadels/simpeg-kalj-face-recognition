@@ -93,13 +93,11 @@
                     <a href="{{ route('admin-hrd.karyawan.show', $karyawan) }}" class="btn-primary text-sm">Lihat Detail Karyawan</a>
                 </div>
             </div>
-        </div>
-    </div>
-</x-app-layout>
+        </div>    </div>
 
 @push('scripts')
 <script type="module">
-import * as faceapi from '/node_modules/@vladmandic/face-api/dist/face-api.esm.js';
+import * as faceapi from '/js/face-api.esm.js';
 
 const MODELS_URL = '/face-models';
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
@@ -275,3 +273,4 @@ document.addEventListener('alpine:init', () => {
 });
 </script>
 @endpush
+</x-app-layout>
