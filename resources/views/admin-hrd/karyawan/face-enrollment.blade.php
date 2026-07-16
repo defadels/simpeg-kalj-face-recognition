@@ -96,181 +96,200 @@
         </div>    </div>
 
 @push('scripts')
-<script type="module">
-import * as faceapi from '/js/face-api.esm.js';
-
+<script>
 const MODELS_URL = '/face-models';
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 const STORE_URL = '{{ route('admin-hrd.karyawan.face-descriptor', $karyawan) }}';
 
-document.addEventListener('alpine:init', () => {
-    Alpine.data('faceEnrollApp', () => ({
-        activeTab: 'webcam',
-        cameraActive: false,
-        cameraStatus: 'loading',
-        faceDetected: false,
-        faceDescriptor: null,
-        saving: false,
-        resultMessage: '',
-        resultSuccess: false,
-        dragging: false,
-        uploadedPhoto: null,
-        uploadFaceStatus: null,
-        detectionInterval: null,
-        modelsLoaded: false,
+// Menyimpan object faceapi setelah dynamic import selesai
+let faceapiInstance = null;
 
-        async init() {
-            try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
-                    faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
-                ]);
-                this.modelsLoaded = true;
-                this.cameraStatus = 'ready';
-                console.log('Models loaded for enrollment');
-            } catch(e) {
-                console.warn('Models load failed:', e);
-                this.cameraStatus = 'error';
-            }
-        },
+async function getFaceApi() {
+    if (!faceapiInstance) {
+        faceapiInstance = await import('/js/face-api.esm.js');
+    }
+    return faceapiInstance;
+}
 
-        async toggleCamera() {
-            if (this.cameraActive) {
-                this.stopCamera();
-            } else {
-                await this.startCamera();
-            }
-        },
+const registerFaceEnrollApp = () => {
+    if (window.Alpine) {
+        window.Alpine.data('faceEnrollApp', () => ({
+            activeTab: 'webcam',
+            cameraActive: false,
+            cameraStatus: 'loading',
+            faceDetected: false,
+            faceDescriptor: null,
+            saving: false,
+            resultMessage: '',
+            resultSuccess: false,
+            dragging: false,
+            uploadedPhoto: null,
+            uploadFaceStatus: null,
+            detectionInterval: null,
+            modelsLoaded: false,
 
-        async startCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+            async init() {
+                try {
+                    const faceapi = await getFaceApi();
+                    await Promise.all([
+                        faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
+                    ]);
+                    this.modelsLoaded = true;
+                    this.cameraStatus = 'ready';
+                    console.log('Models loaded for enrollment');
+                } catch(e) {
+                    console.warn('Models load failed:', e);
+                    this.cameraStatus = 'error';
+                }
+            },
+
+            async toggleCamera() {
+                if (this.cameraActive) {
+                    this.stopCamera();
+                } else {
+                    await this.startCamera();
+                }
+            },
+
+            async startCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+                    const video = document.getElementById('enroll-video');
+                    video.srcObject = stream;
+                    await video.play();
+                    this.cameraActive = true;
+                    this.cameraStatus = 'ready';
+                    this.startDetection();
+                } catch(e) {
+                    this.resultMessage = 'Gagal membuka kamera: ' + e.message;
+                }
+            },
+
+            stopCamera() {
+                if (this.detectionInterval) {
+                    clearInterval(this.detectionInterval);
+                    this.detectionInterval = null;
+                }
                 const video = document.getElementById('enroll-video');
-                video.srcObject = stream;
-                await video.play();
-                this.cameraActive = true;
-                this.cameraStatus = 'ready';
-                this.startDetection();
-            } catch(e) {
-                this.resultMessage = 'Gagal membuka kamera: ' + e.message;
-            }
-        },
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                }
+                this.cameraActive = false;
+                this.faceDetected = false;
+                this.faceDescriptor = null;
+            },
 
-        stopCamera() {
-            if (this.detectionInterval) {
-                clearInterval(this.detectionInterval);
-                this.detectionInterval = null;
-            }
-            const video = document.getElementById('enroll-video');
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(t => t.stop());
-                video.srcObject = null;
-            }
-            this.cameraActive = false;
-            this.faceDetected = false;
-            this.faceDescriptor = null;
-        },
+            async startDetection() {
+                const video = document.getElementById('enroll-video');
+                const canvas = document.getElementById('enroll-canvas');
+                const ctx = canvas.getContext('2d');
+                const faceapi = await getFaceApi();
 
-        startDetection() {
-            const video = document.getElementById('enroll-video');
-            const canvas = document.getElementById('enroll-canvas');
-            const ctx = canvas.getContext('2d');
+                this.detectionInterval = setInterval(async () => {
+                    if (!video || !video.srcObject) return;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            this.detectionInterval = setInterval(async () => {
-                if (!video.srcObject) return;
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const detections = await faceapi
+                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                        .withFaceLandmarks(true)
+                        .withFaceDescriptors();
 
+                    if (detections.length === 1) {
+                        this.faceDetected = true;
+                        this.faceDescriptor = Array.from(detections[0].descriptor);
+
+                        const box = detections[0].detection.box;
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                    } else {
+                        this.faceDetected = false;
+                        this.faceDescriptor = null;
+                    }
+                }, 500);
+            },
+
+            async handlePhotoUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    this.uploadedPhoto = e.target.result;
+                    await this.$nextTick();
+                    await this.processUploadedPhoto(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            },
+
+            async processUploadedPhoto(src) {
+                const img = new Image();
+                img.src = src;
+                await new Promise(r => img.onload = r);
+
+                if (!this.modelsLoaded) {
+                    await this.init();
+                }
+
+                const faceapi = await getFaceApi();
                 const detections = await faceapi
-                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                    .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks(true)
                     .withFaceDescriptors();
 
-                if (detections.length === 1) {
-                    this.faceDetected = true;
-                    this.faceDescriptor = Array.from(detections[0].descriptor);
-
-                    const box = detections[0].detection.box;
-                    ctx.strokeStyle = '#10b981';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(box.x, box.y, box.width, box.height);
-                } else {
-                    this.faceDetected = false;
+                if (detections.length === 0) {
+                    this.uploadFaceStatus = 'not-found';
                     this.faceDescriptor = null;
+                } else if (detections.length > 1) {
+                    this.uploadFaceStatus = 'multiple';
+                    this.faceDescriptor = null;
+                } else {
+                    this.uploadFaceStatus = 'detected';
+                    this.faceDescriptor = Array.from(detections[0].descriptor);
                 }
-            }, 500);
-        },
+            },
 
-        async handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                this.uploadedPhoto = e.target.result;
-                await this.$nextTick();
-                await this.processUploadedPhoto(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        },
-
-        async processUploadedPhoto(src) {
-            const img = new Image();
-            img.src = src;
-            await new Promise(r => img.onload = r);
-
-            if (!this.modelsLoaded) {
-                await this.init();
-            }
-
-            const detections = await faceapi
-                .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
-                .withFaceLandmarks(true)
-                .withFaceDescriptors();
-
-            if (detections.length === 0) {
-                this.uploadFaceStatus = 'not-found';
-                this.faceDescriptor = null;
-            } else if (detections.length > 1) {
-                this.uploadFaceStatus = 'multiple';
-                this.faceDescriptor = null;
-            } else {
-                this.uploadFaceStatus = 'detected';
-                this.faceDescriptor = Array.from(detections[0].descriptor);
-            }
-        },
-
-        async saveFaceDescriptor() {
-            if (!this.faceDescriptor || this.faceDescriptor.length !== 128) {
-                this.resultMessage = 'Data deskriptor tidak valid.';
-                return;
-            }
-
-            this.saving = true;
-            try {
-                const response = await fetch(STORE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-                    body: JSON.stringify({ face_descriptor: this.faceDescriptor }),
-                });
-
-                const data = await response.json();
-                this.resultSuccess = data.success;
-                this.resultMessage = data.message;
-
-                if (data.success) {
-                    this.stopCamera();
+            async saveFaceDescriptor() {
+                if (!this.faceDescriptor || this.faceDescriptor.length !== 128) {
+                    this.resultMessage = 'Data deskriptor tidak valid.';
+                    return;
                 }
-            } catch(e) {
-                this.resultMessage = 'Gagal menghubungi server.';
-                this.resultSuccess = false;
+
+                this.saving = true;
+                try {
+                    const response = await fetch(STORE_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                        body: JSON.stringify({ face_descriptor: this.faceDescriptor }),
+                    });
+
+                    const data = await response.json();
+                    this.resultSuccess = data.success;
+                    this.resultMessage = data.message;
+
+                    if (data.success) {
+                        this.stopCamera();
+                    }
+                } catch(e) {
+                    this.resultMessage = 'Gagal menghubungi server.';
+                    this.resultSuccess = false;
+                }
+                this.saving = false;
             }
-            this.saving = false;
-        }
-    }));
-});
+        }));
+    }
+};
+
+if (window.Alpine) {
+    registerFaceEnrollApp();
+} else {
+    document.addEventListener('alpine:init', registerFaceEnrollApp);
+}
 </script>
 @endpush
 </x-app-layout>

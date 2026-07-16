@@ -209,215 +209,234 @@
     </div>
 
 @push('scripts')
-<script type="module">
-import * as faceapi from '/js/face-api.esm.js';
-
+<script>
 const MODELS_URL = '/face-models';
 const JENIS = '{{ !$sudahMasuk ? 'masuk' : 'keluar' }}';
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
-document.addEventListener('alpine:init', () => {
-    Alpine.data('absensiApp', () => ({
-        step: 1,
-        loading: false,
-        lokasiStatus: null,
-        lokasiMessage: '',
-        faceStatus: 'loading',
-        errorMessage: '',
-        hasilMessage: '',
-        lat: null,
-        lng: null,
-        faceDescriptor: null,
-        faceDetectionInterval: null,
-        modelsLoaded: false,
+// Menyimpan object faceapi setelah dynamic import selesai
+let faceapiInstance = null;
 
-        async init() {
-            try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
-                    faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
-                ]);
-                this.modelsLoaded = true;
-                console.log('Face-API models loaded successfully');
-            } catch(e) {
-                console.warn('AI models failed to load pre-emptively, will retry on step 2', e);
-            }
-        },
+async function getFaceApi() {
+    if (!faceapiInstance) {
+        faceapiInstance = await import('/js/face-api.esm.js');
+    }
+    return faceapiInstance;
+}
 
-        async checkLokasi() {
-            this.loading = true;
-            this.errorMessage = '';
-            this.lokasiStatus = null;
+const registerAbsensiApp = () => {
+    if (window.Alpine) {
+        window.Alpine.data('absensiApp', () => ({
+            step: 1,
+            loading: false,
+            lokasiStatus: null,
+            lokasiMessage: '',
+            faceStatus: 'loading',
+            errorMessage: '',
+            hasilMessage: '',
+            lat: null,
+            lng: null,
+            faceDescriptor: null,
+            faceDetectionInterval: null,
+            modelsLoaded: false,
 
-            if (!navigator.geolocation) {
-                this.lokasiStatus = 'invalid';
-                this.lokasiMessage = 'Perangkat / browser Anda tidak mendukung akses lokasi GPS.';
-                this.loading = false;
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    this.lat = position.coords.latitude;
-                    this.lng = position.coords.longitude;
-
-                    try {
-                        const response = await fetch('{{ route('karyawan.absensi.check-lokasi') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': CSRF,
-                            },
-                            body: JSON.stringify({
-                                latitude: this.lat,
-                                longitude: this.lng,
-                            }),
-                        });
-
-                        const data = await response.json();
-                        this.lokasiStatus = data.valid ? 'valid' : 'invalid';
-                        this.lokasiMessage = data.message;
-                    } catch(e) {
-                        this.lokasiStatus = 'invalid';
-                        this.lokasiMessage = 'Koneksi ke server gagal. Coba beberapa saat lagi.';
-                    }
-                    this.loading = false;
-                },
-                (error) => {
-                    this.lokasiStatus = 'invalid';
-                    this.lokasiMessage = 'Akses lokasi ditolak. Aktifkan GPS dan izinkan browser mengakses lokasi.';
-                    this.loading = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        },
-
-        async startCamera() {
-            this.faceStatus = 'loading';
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: 640, height: 480, facingMode: 'user' }
-                });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-                await video.play();
-
-                if (!this.modelsLoaded) {
+            async init() {
+                try {
+                    const faceapi = await getFaceApi();
                     await Promise.all([
                         faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
                         faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
                         faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                     ]);
                     this.modelsLoaded = true;
+                    console.log('Face-API models loaded successfully');
+                } catch(e) {
+                    console.warn('AI models failed to load pre-emptively, will retry on step 2', e);
+                }
+            },
+
+            async checkLokasi() {
+                this.loading = true;
+                this.errorMessage = '';
+                this.lokasiStatus = null;
+
+                if (!navigator.geolocation) {
+                    this.lokasiStatus = 'invalid';
+                    this.lokasiMessage = 'Perangkat / browser Anda tidak mendukung akses lokasi GPS.';
+                    this.loading = false;
+                    return;
                 }
 
-                this.faceStatus = 'detecting';
-                this.startFaceDetection();
-            } catch(e) {
-                this.errorMessage = 'Gagal mengakses kamera: ' + e.message;
-                this.faceStatus = 'no-face';
-            }
-        },
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        this.lat = position.coords.latitude;
+                        this.lng = position.coords.longitude;
 
-        startFaceDetection() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('overlay');
-            const ctx = canvas.getContext('2d');
+                        try {
+                            const response = await fetch('{{ route('karyawan.absensi.check-lokasi') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': CSRF,
+                                },
+                                body: JSON.stringify({
+                                    latitude: this.lat,
+                                    longitude: this.lng,
+                                }),
+                            });
 
-            this.faceDetectionInterval = setInterval(async () => {
-                if (video.paused || video.ended) return;
-
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const detections = await faceapi
-                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
-                    .withFaceLandmarks(true)
-                    .withFaceDescriptors();
-
-                if (detections.length === 1) {
-                    this.faceStatus = 'detected';
-                    this.faceDescriptor = Array.from(detections[0].descriptor);
-
-                    // Draw green matching square around detected face
-                    const box = detections[0].detection.box;
-                    ctx.strokeStyle = '#10b981';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(box.x, box.y, box.width, box.height);
-                } else if (detections.length === 0) {
-                    this.faceStatus = 'no-face';
-                    this.faceDescriptor = null;
-                } else {
-                    this.faceStatus = 'no-face';
-                    this.faceDescriptor = null;
-                    
-                    // Warning for multiple faces detected
-                    ctx.fillStyle = 'rgba(200, 16, 46, 0.85)';
-                    ctx.fillRect(10, canvas.height - 40, canvas.width - 20, 30);
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 12px Plus Jakarta Sans';
-                    ctx.fillText('HANYA BOLEH SATU WAJAH DI DEPAN KAMERA!', 20, canvas.height - 20);
-                }
-            }, 400);
-        },
-
-        stopCamera() {
-            if (this.faceDetectionInterval) {
-                clearInterval(this.faceDetectionInterval);
-                this.faceDetectionInterval = null;
-            }
-            const video = document.getElementById('video');
-            if (video && video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-            }
-            this.faceStatus = 'detecting';
-            this.faceDescriptor = null;
-        },
-
-        async rekamAbsen() {
-            if (!this.faceDescriptor || this.faceDescriptor.length !== 128) {
-                this.errorMessage = 'Gagal memproses wajah. Pastikan wajah terdeteksi dengan jelas di kamera.';
-                return;
-            }
-
-            this.loading = true;
-            this.errorMessage = '';
-
-            try {
-                const response = await fetch('{{ route('karyawan.absensi.proses') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': CSRF,
+                            const data = await response.json();
+                            this.lokasiStatus = data.valid ? 'valid' : 'invalid';
+                            this.lokasiMessage = data.message;
+                        } catch(e) {
+                            this.lokasiStatus = 'invalid';
+                            this.lokasiMessage = 'Koneksi ke server gagal. Coba beberapa saat lagi.';
+                        }
+                        this.loading = false;
                     },
-                    body: JSON.stringify({
-                        latitude: this.lat,
-                        longitude: this.lng,
-                        face_descriptor: this.faceDescriptor,
-                        jenis: JENIS,
-                    }),
-                });
+                    (error) => {
+                        this.lokasiStatus = 'invalid';
+                        this.lokasiMessage = 'Akses lokasi ditolak. Aktifkan GPS dan izinkan browser mengakses lokasi.';
+                        this.loading = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            },
 
-                const data = await response.json();
+            async startCamera() {
+                this.faceStatus = 'loading';
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 640, height: 480, facingMode: 'user' }
+                    });
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    await video.play();
 
-                if (data.success) {
-                    this.stopCamera();
-                    this.hasilMessage = data.message;
-                    this.step = 3;
-                } else {
-                    this.errorMessage = data.message;
+                    if (!this.modelsLoaded) {
+                        const faceapi = await getFaceApi();
+                        await Promise.all([
+                            faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+                            faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+                            faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
+                        ]);
+                        this.modelsLoaded = true;
+                    }
+
+                    this.faceStatus = 'detecting';
+                    this.startFaceDetection();
+                } catch(e) {
+                    this.errorMessage = 'Gagal mengakses kamera: ' + e.message;
+                    this.faceStatus = 'no-face';
                 }
-            } catch(e) {
-                this.errorMessage = 'Terjadi kesalahan sistem saat menyimpan absen. Coba lagi.';
-            }
+            },
 
-            this.loading = false;
-        }
-    }));
-});
+            async startFaceDetection() {
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('overlay');
+                const ctx = canvas.getContext('2d');
+                const faceapi = await getFaceApi();
+
+                this.faceDetectionInterval = setInterval(async () => {
+                    if (video.paused || video.ended) return;
+
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    const detections = await faceapi
+                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+                        .withFaceLandmarks(true)
+                        .withFaceDescriptors();
+
+                    if (detections.length === 1) {
+                        this.faceStatus = 'detected';
+                        this.faceDescriptor = Array.from(detections[0].descriptor);
+
+                        // Draw green matching square around detected face
+                        const box = detections[0].detection.box;
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                    } else if (detections.length === 0) {
+                        this.faceStatus = 'no-face';
+                        this.faceDescriptor = null;
+                    } else {
+                        this.faceStatus = 'no-face';
+                        this.faceDescriptor = null;
+                        
+                        // Warning for multiple faces detected
+                        ctx.fillStyle = 'rgba(200, 16, 46, 0.85)';
+                        ctx.fillRect(10, canvas.height - 40, canvas.width - 20, 30);
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 12px Plus Jakarta Sans';
+                        ctx.fillText('HANYA BOLEH SATU WAJAH DI DEPAN KAMERA!', 20, canvas.height - 20);
+                    }
+                }, 400);
+            },
+
+            stopCamera() {
+                if (this.faceDetectionInterval) {
+                    clearInterval(this.faceDetectionInterval);
+                    this.faceDetectionInterval = null;
+                }
+                const video = document.getElementById('video');
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                this.faceStatus = 'detecting';
+                this.faceDescriptor = null;
+            },
+
+            async rekamAbsen() {
+                if (!this.faceDescriptor || this.faceDescriptor.length !== 128) {
+                    this.errorMessage = 'Gagal memproses wajah. Pastikan wajah terdeteksi dengan jelas di kamera.';
+                    return;
+                }
+
+                this.loading = true;
+                this.errorMessage = '';
+
+                try {
+                    const response = await fetch('{{ route('karyawan.absensi.proses') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': CSRF,
+                        },
+                        body: JSON.stringify({
+                            latitude: this.lat,
+                            longitude: this.lng,
+                            face_descriptor: this.faceDescriptor,
+                            jenis: JENIS,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.stopCamera();
+                        this.hasilMessage = data.message;
+                        this.step = 3;
+                    } else {
+                        this.errorMessage = data.message;
+                    }
+                } catch(e) {
+                    this.errorMessage = 'Terjadi kesalahan sistem saat menyimpan absen. Coba lagi.';
+                }
+
+                this.loading = false;
+            }
+        }));
+    }
+};
+
+if (window.Alpine) {
+    registerAbsensiApp();
+} else {
+    document.addEventListener('alpine:init', registerAbsensiApp);
+}
 </script>
 @endpush
 </x-app-layout>

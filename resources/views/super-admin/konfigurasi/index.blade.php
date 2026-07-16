@@ -122,40 +122,49 @@
             </div>
         </div>
     </div>
-
-
-document.addEventListener('alpine:init', () => {
-    Alpine.data('mapSearchApp', () => ({
-        searchQuery: '',
-        results: [],
-        showDropdown: false,
-        
-        async searchAddress() {
-            if (this.searchQuery.length < 3) {
-                this.results = [];
-                this.showDropdown = false;
-                return;
-            }
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(this.searchQuery)}`);
-                this.results = await response.json();
-                this.showDropdown = true;
-            } catch (e) {
-                console.error('Nominatim Geocoding error:', e);
-            }
-        },
-        
-        selectAddress(item) {
-            const lat = parseFloat(item.lat);
-            const lon = parseFloat(item.lon);
-            this.showDropdown = false;
-            this.searchQuery = item.display_name;
+@push('scripts')
+<script>
+const registerMapSearchApp = () => {
+    if (window.Alpine) {
+        window.Alpine.data('mapSearchApp', () => ({
+            searchQuery: '',
+            results: [],
+            showDropdown: false,
             
-            // Dispatch event to Leaflet handler
-            window.dispatchEvent(new CustomEvent('map-move-to', { detail: { lat, lng: lon } }));
-        }
-    }));
-});
+            async searchAddress() {
+                if (this.searchQuery.length < 3) {
+                    this.results = [];
+                    this.showDropdown = false;
+                    return;
+                }
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(this.searchQuery)}`);
+                    this.results = await response.json();
+                    this.showDropdown = true;
+                } catch (e) {
+                    console.error('Nominatim Geocoding error:', e);
+                }
+            },
+            
+            selectAddress(item) {
+                const lat = parseFloat(item.lat);
+                const lon = parseFloat(item.lon);
+                this.showDropdown = false;
+                this.searchQuery = item.display_name;
+                
+                // Dispatch event to Leaflet handler
+                window.dispatchEvent(new CustomEvent('map-move-to', { detail: { lat, lng: lon } }));
+            }
+        }));
+    }
+};
+
+if (window.Alpine) {
+    registerMapSearchApp();
+} else {
+    document.addEventListener('alpine:init', registerMapSearchApp);
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const defaultLat = {{ $konfigurasi?->lat_kantor ?? -5.1477 }};

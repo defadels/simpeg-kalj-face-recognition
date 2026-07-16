@@ -234,6 +234,8 @@ class AdminHrdController extends Controller
         $validated = $request->validate([
             'nip' => 'required|string|unique:karyawan,nip,' . $karyawan->id,
             'nama_lengkap' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $karyawan->user_id,
+            'password' => 'nullable|string|min:8',
             'jabatan_id' => 'nullable|exists:jabatan,id',
             'divisi_id' => 'nullable|exists:divisi,id',
             'jenis_kelamin' => 'required|in:L,P',
@@ -244,6 +246,7 @@ class AdminHrdController extends Controller
             'tanggal_masuk' => 'required|date',
             'saldo_cuti' => 'required|integer|min:0',
             'status' => 'required|in:aktif,nonaktif',
+            'role' => 'required|in:manajer,karyawan',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -255,8 +258,19 @@ class AdminHrdController extends Controller
 
         $karyawan->update($validated);
 
-        // Update nama di user juga
-        $karyawan->user->update(['nama' => $validated['nama_lengkap']]);
+        // Update User
+        $userData = [
+            'nama' => $validated['nama_lengkap'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+        ];
+
+        if (!empty($validated['password'])) {
+            $userData['password'] = bcrypt($validated['password']);
+        }
+
+        $karyawan->user->update($userData);
+        $karyawan->user->syncRoles([$validated['role']]);
 
         return redirect()->route('admin-hrd.karyawan.index')
             ->with('success', 'Data karyawan berhasil diperbarui.');
