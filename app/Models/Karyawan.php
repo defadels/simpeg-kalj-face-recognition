@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Karyawan extends Model
+{
+    use HasFactory;
+
+    protected $table = 'karyawan';
+
+    protected $fillable = [
+        'user_id',
+        'nip',
+        'nama_lengkap',
+        'jabatan_id',
+        'divisi_id',
+        'jenis_kelamin',
+        'tanggal_lahir',
+        'alamat',
+        'no_telp',
+        'foto',
+        'face_data',
+        'tanggal_masuk',
+        'saldo_cuti',
+        'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal_lahir' => 'date',
+            'tanggal_masuk' => 'date',
+            'saldo_cuti' => 'integer',
+        ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class);
+    }
+
+    public function absensi()
+    {
+        return $this->hasMany(Absensi::class);
+    }
+
+    public function cutiIzin()
+    {
+        return $this->hasMany(CutiIzin::class);
+    }
+
+    public function managedDivisi()
+    {
+        return $this->hasOne(Divisi::class, 'manajer_id');
+    }
+
+    /**
+     * Mendapatkan face descriptor sebagai array PHP
+     */
+    public function getFaceDescriptorArray(): ?array
+    {
+        if (!$this->face_data) {
+            return null;
+        }
+        return json_decode($this->face_data, true);
+    }
+
+    /**
+     * Cek apakah karyawan sudah absen masuk hari ini
+     */
+    public function sudahAbsenMasukHariIni(): bool
+    {
+        return $this->absensi()
+            ->where('tanggal', today())
+            ->whereNotNull('waktu_masuk')
+            ->exists();
+    }
+
+    /**
+     * Cek apakah karyawan sudah absen keluar hari ini
+     */
+    public function sudahAbsenKeluarHariIni(): bool
+    {
+        return $this->absensi()
+            ->where('tanggal', today())
+            ->whereNotNull('waktu_keluar')
+            ->exists();
+    }
+
+    public function getFotoUrlAttribute(): string
+    {
+        if ($this->foto) {
+            return asset('storage/' . $this->foto);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap) . '&background=0EA5E9&color=fff&size=128';
+    }
+}
