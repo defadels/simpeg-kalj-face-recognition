@@ -1,3 +1,137 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: #0056B3;
+        --primary-dark: #004085;
+        --secondary: #C8102E;
+        --secondary-dark: #a00d24;
+        --sidebar-bg: #0b1528;
+        --sidebar-hover: #17243c;
+        --sidebar-active: #0056B3;
+    }
+
+    body {
+        @apply bg-slate-50 text-slate-800 antialiased font-sans;
+    }
+}
+
+@layer components {
+    /* Layout components */
+    .card {
+        @apply bg-white rounded-2xl border border-slate-100 shadow-sm p-6 transition-all duration-300 hover:shadow-md;
+    }
+
+    .stat-card {
+        @apply rounded-2xl p-6 text-white relative overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply bg-[#0056B3] hover:bg-[#004085] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm hover:shadow active:scale-[0.98];
+    }
+
+    .btn-secondary {
+        @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm active:scale-[0.98];
+    }
+
+    .btn-danger {
+        @apply bg-[#C8102E] hover:bg-[#a00d24] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm active:scale-[0.98];
+    }
+
+    .btn-success {
+        @apply bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm active:scale-[0.98];
+    }
+
+    .btn-warning {
+        @apply bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm active:scale-[0.98];
+    }
+
+    /* Forms */
+    .form-group {
+        @apply mb-4;
+    }
+
+    .form-label {
+        @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5;
+    }
+
+    .form-input {
+        @apply w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0056B3]/30 focus:border-[#0056B3] transition-all bg-slate-50/50 hover:bg-slate-50 focus:bg-white;
+    }
+
+    .form-error {
+        @apply text-xs font-medium text-red-500 mt-1;
+    }
+
+    /* Badges */
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase;
+    }
+    
+    .badge-green {
+        @apply bg-emerald-50 text-emerald-700 border border-emerald-100;
+    }
+
+    .badge-red {
+        @apply bg-red-50 text-red-700 border border-red-100;
+    }
+
+    .badge-yellow {
+        @apply bg-amber-50 text-amber-700 border border-amber-100;
+    }
+
+    .badge-blue {
+        @apply bg-sky-50 text-[#0056B3] border border-sky-100;
+    }
+
+    .badge-purple {
+        @apply bg-purple-50 text-purple-700 border border-purple-100;
+    }
+
+    .badge-gray {
+        @apply bg-slate-50 text-slate-600 border border-slate-200;
+    }
+
+    /* Sidebar classes */
+    .sidebar {
+        @apply bg-[#0b1528] text-slate-300 w-64 flex-shrink-0 flex flex-col h-full transition-all duration-300;
+    }
+
+    .sidebar-link {
+        @apply flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-[#17243c] text-sm font-medium transition-all duration-200;
+    }
+
+    .sidebar-link.active {
+        @apply bg-[#0056B3] text-white shadow-lg shadow-[#0056B3]/25 font-semibold;
+    }
+
+    .sidebar-group-label {
+        @apply text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-2 mt-6;
+    }
+
+    /* Tables */
+    .table-row {
+        @apply border-b border-slate-100 hover:bg-slate-50/80 transition-colors duration-150;
+    }
+}
+
+/* Custom leaflet tweaks to prevent layout breakage and fix Tailwind reset conflict */
+.leaflet-container {
+    @apply rounded-2xl shadow-inner border border-slate-100;
+}
+.leaflet-container img.leaflet-tile {
+    max-width: none !important;
+    max-height: none !important;
+    width: 256px !important;
+    height: 256px !important;
+}
+.leaflet-pane {
+    z-index: 1 !important;
+}
+.leaflet-top, .leaflet-bottom {
+    z-index: 2 !important;
+}
+
