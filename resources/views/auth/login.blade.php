@@ -24,13 +24,8 @@
     <div class="w-full max-w-md relative z-10">
         <!-- Logo & Header -->
         <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-3 shadow-md border border-slate-150 p-2">
-                <svg viewBox="0 0 100 100" class="w-full h-full">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#C8102E" stroke-width="6"/>
-                    <path d="M35,65 L35,35 L45,35 L45,47 L60,35 L68,35 L52,50 L68,65 L59,65 L45,52 L45,65 Z" fill="#0056B3"/>
-                    <circle cx="28" cy="62" r="3" fill="#C8102E"/>
-                    <circle cx="72" cy="38" r="3" fill="#C8102E"/>
-                </svg>
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-3 shadow-md border border-slate-150 p-2 overflow-hidden">
+                <img src="{{ asset('storage/logo.jpeg') }}" alt="Logo KALJ" class="w-full h-full object-cover rounded-2xl">
             </div>
             <h1 class="text-slate-800 text-2xl font-extrabold tracking-tight">SIPEG KALJ</h1>
             <p class="text-slate-400 text-xs mt-1 font-medium">PT. Karya Agung Lestari Jaya — Medan, Indonesia</p>
