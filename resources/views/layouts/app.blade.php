@@ -28,14 +28,8 @@
     <aside class="hidden lg:flex sidebar w-66 flex-shrink-0 flex-col h-full overflow-y-auto">
         <!-- Logo -->
         <div class="flex items-center gap-3 px-6 py-6 border-b border-white/5">
-            <!-- Inline SVG Logo KALJ (Merah-Biru sesuai logo asli) -->
-            <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm border border-red-100 p-0.5">
-                <svg viewBox="0 0 100 100" class="w-full h-full">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#C8102E" stroke-width="6"/>
-                    <path d="M35,65 L35,35 L45,35 L45,47 L60,35 L68,35 L52,50 L68,65 L59,65 L45,52 L45,65 Z" fill="#0056B3"/>
-                    <circle cx="28" cy="62" r="3" fill="#C8102E"/>
-                    <circle cx="72" cy="38" r="3" fill="#C8102E"/>
-                </svg>
+            <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm border border-red-100 p-0.5 overflow-hidden">
+                <img src="{{ asset('storage/logo.jpeg') }}" alt="Logo KALJ" class="w-full h-full object-cover">
             </div>
             <div>
                 <div class="text-white font-extrabold text-sm tracking-tight leading-none">SIPEG KALJ</div>
@@ -177,11 +171,8 @@
 
             <!-- Logo -->
             <div class="flex items-center gap-3 px-6 py-6 border-b border-white/5">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm p-0.5">
-                    <svg viewBox="0 0 100 100" class="w-full h-full">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="#C8102E" stroke-width="6"/>
-                        <path d="M35,65 L35,35 L45,35 L45,47 L60,35 L68,35 L52,50 L68,65 L59,65 L45,52 L45,65 Z" fill="#0056B3"/>
-                    </svg>
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
+                    <img src="{{ asset('storage/logo.jpeg') }}" alt="Logo KALJ" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <div class="text-white font-extrabold text-sm leading-none">SIPEG KALJ</div>
