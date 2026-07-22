@@ -14,7 +14,7 @@
                         <label class="form-label">Role Akun *</label>
                         <select name="role" class="form-input" required>
                             <option value="karyawan" {{ old('role', $karyawan->user?->role) === 'karyawan' ? 'selected' : '' }}>Karyawan</option>
-                            <option value="manajer" {{ old('role', $karyawan->user?->role) === 'manajer' ? 'selected' : '' }}>Manajer</option>
+                            <option value="admin" {{ old('role', $karyawan->user?->role) === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role')<p class="form-error text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                     </div>

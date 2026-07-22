@@ -176,7 +176,7 @@ class AdminHrdController extends Controller
             'tanggal_masuk' => 'required|date',
             'saldo_cuti' => 'required|integer|min:0|max:365',
             'status' => 'required|in:aktif,nonaktif',
-            'role' => 'required|in:manajer,karyawan',
+            'role' => 'required|in:admin,karyawan',
         ]);
 
         // Buat user
@@ -246,7 +246,7 @@ class AdminHrdController extends Controller
             'tanggal_masuk' => 'required|date',
             'saldo_cuti' => 'required|integer|min:0',
             'status' => 'required|in:aktif,nonaktif',
-            'role' => 'required|in:manajer,karyawan',
+            'role' => 'required|in:admin,karyawan',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -297,15 +297,33 @@ class AdminHrdController extends Controller
         $request->validate([
             'face_descriptor' => 'required|array|size:128',
             'face_descriptor.*' => 'required|numeric',
+            'image' => 'nullable|string',
         ]);
 
-        $karyawan->update([
+        $updateData = [
             'face_data' => json_encode($request->face_descriptor),
-        ]);
+        ];
+
+        if ($request->image && str_starts_with($request->image, 'data:image')) {
+            if ($karyawan->foto) {
+                Storage::disk('public')->delete($karyawan->foto);
+            }
+
+            $imageParts = explode(';base64,', $request->image);
+            if (count($imageParts) === 2) {
+                $imageDecoded = base64_decode($imageParts[1]);
+                $filename = 'karyawan/foto/face_' . $karyawan->id . '_' . time() . '.jpg';
+                Storage::disk('public')->put($filename, $imageDecoded);
+                $updateData['foto'] = $filename;
+            }
+        }
+
+        $karyawan->update($updateData);
 
         return response()->json([
             'success' => true,
-            'message' => 'Face descriptor berhasil disimpan untuk ' . $karyawan->nama_lengkap,
+            'message' => 'Data deskriptor wajah & foto profil berhasil disimpan untuk ' . $karyawan->nama_lengkap,
+            'foto_url' => $karyawan->foto_url,
         ]);
     }
 }

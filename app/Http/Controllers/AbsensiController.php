@@ -126,13 +126,14 @@ class AbsensiController extends Controller
         }
 
         $distance = $this->euclideanDistance($request->face_descriptor, $faceDescriptor);
-        $threshold = 0.6;
+        $threshold = 0.45;
 
         if ($distance > $threshold) {
             return response()->json([
                 'success' => false,
-                'message' => "Wajah tidak dikenali (distance: {$distance}). Pastikan pencahayaan cukup dan wajah menghadap kamera.",
+                'message' => "Verifikasi wajah gagal. Wajah tidak cocok dengan data terdaftar (Kemiripan: " . round(max(0, (1 - $distance)) * 100, 1) . "%). Pastikan Anda sendiri yang melakukan absensi.",
                 'distance' => round($distance, 4),
+                'threshold' => $threshold,
                 'status_face' => 'gagal',
             ], 422);
         }
@@ -238,13 +239,6 @@ class AbsensiController extends Controller
 
         if ($request->divisi_id) {
             $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $request->divisi_id));
-        }
-
-        if (auth()->user()->role === 'manajer') {
-            $divisiId = auth()->user()->karyawan?->managedDivisi?->id;
-            if ($divisiId) {
-                $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $divisiId));
-            }
         }
 
         $absensi = $query->paginate(20)->withQueryString();

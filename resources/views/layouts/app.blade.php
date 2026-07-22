@@ -39,93 +39,62 @@
 
         <!-- Navigation Links -->
         <nav class="flex-1 px-4 py-5 space-y-1">
-            @php $role = auth()->user()->role; @endphp
+            @php $user = auth()->user(); @endphp
 
-            {{-- SUPER ADMIN --}}
-            @if($role === 'super_admin')
+            {{-- ADMIN --}}
+            @if($user->isAdmin())
                 <div class="sidebar-group-label">Administrasi</div>
-                <a href="{{ route('super-admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('super-admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    Dashboard
+                    Dashboard Admin
                 </a>
-                <a href="{{ route('super-admin.users.index') }}" class="sidebar-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Kelola Pengguna
                 </a>
-                <a href="{{ route('super-admin.konfigurasi.index') }}" class="sidebar-link {{ request()->routeIs('super-admin.konfigurasi.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Konfigurasi Sistem
-                </a>
-            @endif
 
-            {{-- ADMIN HRD --}}
-            @if($role === 'admin_hrd')
-                <div class="sidebar-group-label">Dashboard</div>
-                <a href="{{ route('admin-hrd.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.dashboard') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    Dashboard
-                </a>
                 <div class="sidebar-group-label">Master Data</div>
-                <a href="{{ route('admin-hrd.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.karyawan.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <a href="{{ route('admin.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin.karyawan.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Data Karyawan
                 </a>
-                <a href="{{ route('admin-hrd.jabatan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.jabatan.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.jabatan.index') }}" class="sidebar-link {{ request()->routeIs('admin.jabatan.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     Jabatan
                 </a>
-                <a href="{{ route('admin-hrd.divisi.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.divisi.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.divisi.index') }}" class="sidebar-link {{ request()->routeIs('admin.divisi.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     Divisi
                 </a>
-                <div class="sidebar-group-label">Kehadiran</div>
-                <a href="{{ route('admin-hrd.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.absensi.*') ? 'active' : '' }}">
+
+                <div class="sidebar-group-label">Kehadiran & Cuti</div>
+                <a href="{{ route('admin.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('admin.absensi.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     Monitor Absensi
                 </a>
-                <a href="{{ route('admin-hrd.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.cuti-izin.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('admin.cuti-izin.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    Cuti & Izin
+                    Persetujuan Cuti
                 </a>
-                <div class="sidebar-group-label">Laporan</div>
-                <a href="{{ route('admin-hrd.laporan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.laporan.index') ? 'active' : '' }}">
+
+                <div class="sidebar-group-label">Laporan & Sistem</div>
+                <a href="{{ route('admin.laporan.index') }}" class="sidebar-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Laporan Kehadiran
                 </a>
-            @endif
-
-            {{-- MANAJER --}}
-            @if($role === 'manajer')
-                <div class="sidebar-group-label">Dashboard</div>
-                <a href="{{ route('manajer.dashboard') }}" class="sidebar-link {{ request()->routeIs('manajer.dashboard') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    Dashboard
+                <a href="{{ route('admin.konfigurasi.index') }}" class="sidebar-link {{ request()->routeIs('admin.konfigurasi.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Konfigurasi Sistem
                 </a>
-                <div class="sidebar-group-label">Tim Saya</div>
-                <a href="{{ route('manajer.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('manajer.absensi.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    Monitor Absensi
-                </a>
-                <a href="{{ route('manajer.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('manajer.cuti-izin.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Persetujuan Cuti
-                </a>
-                <a href="{{ route('manajer.laporan.index') }}" class="sidebar-link {{ request()->routeIs('manajer.laporan.index') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Laporan Divisi
-                </a>
-            @endif
-
-            {{-- KARYAWAN (dan semua role untuk akses mandiri) --}}
-            @if($role === 'karyawan')
-                <div class="sidebar-group-label">Saya</div>
+            @else
+                <div class="sidebar-group-label">Karyawan</div>
                 <a href="{{ route('karyawan.dashboard') }}" class="sidebar-link {{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                     Dashboard
                 </a>
                 <a href="{{ route('karyawan.absensi.index') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.index') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Absensi
+                    Absensi Wajah
                 </a>
                 <a href="{{ route('karyawan.absensi.riwayat') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.riwayat') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -144,7 +113,7 @@
                 <img src="{{ auth()->user()->avatar }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10" alt="Avatar">
                 <div class="flex-1 min-w-0">
                     <div class="text-white text-xs font-bold truncate leading-tight">{{ auth()->user()->nama }}</div>
-                    <div class="text-slate-500 text-[10px] truncate mt-0.5 font-medium uppercase tracking-wider">{{ str_replace('_', ' ', auth()->user()->role) }}</div>
+                    <div class="text-slate-500 text-[10px] truncate mt-0.5 font-medium uppercase tracking-wider">{{ auth()->user()->role }}</div>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
@@ -182,34 +151,22 @@
 
             <!-- Navigation Links -->
             <nav class="flex-1 px-4 py-5 space-y-1">
-                {{-- Render links di mobile (sama seperti desktop) --}}
-                @if($role === 'super_admin')
+                @if($user->isAdmin())
                     <div class="sidebar-group-label">Administrasi</div>
-                    <a href="{{ route('super-admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('super-admin.dashboard') ? 'active' : '' }}">Dashboard</a>
-                    <a href="{{ route('super-admin.users.index') }}" class="sidebar-link {{ request()->routeIs('super-admin.users.*') ? 'active' : '' }}">Kelola Pengguna</a>
-                    <a href="{{ route('super-admin.konfigurasi.index') }}" class="sidebar-link {{ request()->routeIs('super-admin.konfigurasi.*') ? 'active' : '' }}">Konfigurasi Sistem</a>
-                @endif
-                @if($role === 'admin_hrd')
-                    <div class="sidebar-group-label">Dashboard</div>
-                    <a href="{{ route('admin-hrd.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.dashboard') ? 'active' : '' }}">Dashboard</a>
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard Admin</a>
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Kelola Pengguna</a>
                     <div class="sidebar-group-label">Master Data</div>
-                    <a href="{{ route('admin-hrd.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.karyawan.*') ? 'active' : '' }}">Karyawan</a>
-                    <a href="{{ route('admin-hrd.jabatan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.jabatan.*') ? 'active' : '' }}">Jabatan</a>
-                    <a href="{{ route('admin-hrd.divisi.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.divisi.*') ? 'active' : '' }}">Divisi</a>
-                    <div class="sidebar-group-label">Kehadiran</div>
-                    <a href="{{ route('admin-hrd.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.absensi.*') ? 'active' : '' }}">Monitor Absensi</a>
-                    <a href="{{ route('admin-hrd.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.cuti-izin.*') ? 'active' : '' }}">Cuti & Izin</a>
-                    <a href="{{ route('admin-hrd.laporan.index') }}" class="sidebar-link {{ request()->routeIs('admin-hrd.laporan.*') ? 'active' : '' }}">Laporan</a>
-                @endif
-                @if($role === 'manajer')
-                    <div class="sidebar-group-label">Dashboard</div>
-                    <a href="{{ route('manajer.dashboard') }}" class="sidebar-link {{ request()->routeIs('manajer.dashboard') ? 'active' : '' }}">Dashboard</a>
-                    <div class="sidebar-group-label">Kehadiran</div>
-                    <a href="{{ route('manajer.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('manajer.absensi.*') ? 'active' : '' }}">Monitor Absensi</a>
-                    <a href="{{ route('manajer.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('manajer.cuti-izin.*') ? 'active' : '' }}">Persetujuan Cuti</a>
-                @endif
-                @if($role === 'karyawan')
-                    <div class="sidebar-group-label">Saya</div>
+                    <a href="{{ route('admin.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin.karyawan.*') ? 'active' : '' }}">Karyawan</a>
+                    <a href="{{ route('admin.jabatan.index') }}" class="sidebar-link {{ request()->routeIs('admin.jabatan.*') ? 'active' : '' }}">Jabatan</a>
+                    <a href="{{ route('admin.divisi.index') }}" class="sidebar-link {{ request()->routeIs('admin.divisi.*') ? 'active' : '' }}">Divisi</a>
+                    <div class="sidebar-group-label">Kehadiran & Cuti</div>
+                    <a href="{{ route('admin.absensi.monitor') }}" class="sidebar-link {{ request()->routeIs('admin.absensi.*') ? 'active' : '' }}">Monitor Absensi</a>
+                    <a href="{{ route('admin.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('admin.cuti-izin.*') ? 'active' : '' }}">Approval Cuti</a>
+                    <div class="sidebar-group-label">Laporan & Sistem</div>
+                    <a href="{{ route('admin.laporan.index') }}" class="sidebar-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">Laporan</a>
+                    <a href="{{ route('admin.konfigurasi.index') }}" class="sidebar-link {{ request()->routeIs('admin.konfigurasi.*') ? 'active' : '' }}">Konfigurasi Sistem</a>
+                @else
+                    <div class="sidebar-group-label">Karyawan</div>
                     <a href="{{ route('karyawan.dashboard') }}" class="sidebar-link {{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}">Dashboard</a>
                     <a href="{{ route('karyawan.absensi.index') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.index') ? 'active' : '' }}">Absensi</a>
                     <a href="{{ route('karyawan.absensi.riwayat') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.riwayat') ? 'active' : '' }}">Riwayat</a>
