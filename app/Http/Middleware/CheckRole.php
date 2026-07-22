@@ -25,7 +25,9 @@ class CheckRole
             return redirect()->route('login')->withErrors(['email' => 'Akun Anda telah dinonaktifkan.']);
         }
 
-        if (!in_array($user->role, $roles)) {
+        $hasAccess = in_array($user->role, $roles) || ($user->isAdmin() && array_intersect($roles, ['admin', 'super_admin', 'admin_hrd', 'manajer']));
+
+        if (!$hasAccess) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

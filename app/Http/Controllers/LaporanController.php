@@ -17,14 +17,7 @@ class LaporanController extends Controller
     public function index(Request $request)
     {
         $divisi = Divisi::all();
-        $divisiId = null;
-
-        // Manajer hanya bisa lihat divisinya
-        if (auth()->user()->role === 'manajer') {
-            $divisiId = auth()->user()->karyawan?->managedDivisi?->id;
-        } else {
-            $divisiId = $request->divisi_id;
-        }
+        $divisiId = $request->divisi_id;
 
         $periodeAwal = $request->periode_awal ?? now()->startOfMonth()->format('Y-m-d');
         $periodeAkhir = $request->periode_akhir ?? now()->endOfMonth()->format('Y-m-d');
@@ -53,9 +46,6 @@ class LaporanController extends Controller
     public function exportPdf(Request $request)
     {
         $divisiId = $request->divisi_id;
-        if (auth()->user()->role === 'manajer') {
-            $divisiId = auth()->user()->karyawan?->managedDivisi?->id;
-        }
 
         $periodeAwal = $request->periode_awal ?? now()->startOfMonth()->format('Y-m-d');
         $periodeAkhir = $request->periode_akhir ?? now()->endOfMonth()->format('Y-m-d');
@@ -88,9 +78,6 @@ class LaporanController extends Controller
     public function exportExcel(Request $request)
     {
         $divisiId = $request->divisi_id;
-        if (auth()->user()->role === 'manajer') {
-            $divisiId = auth()->user()->karyawan?->managedDivisi?->id;
-        }
 
         $periodeAwal = $request->periode_awal ?? now()->startOfMonth()->format('Y-m-d');
         $periodeAkhir = $request->periode_akhir ?? now()->endOfMonth()->format('Y-m-d');

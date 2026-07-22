@@ -16,34 +16,22 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Buat roles
-        $roles = ['super_admin', 'admin_hrd', 'manajer', 'karyawan'];
+        $roles = ['admin', 'karyawan'];
         foreach ($roles as $roleName) {
             Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
         }
 
         // =====================
-        // 1. Super Admin
+        // 1. Administrator
         // =====================
-        $superAdmin = User::create([
-            'nama' => 'Super Administrator',
-            'email' => 'superadmin@sipeg.local',
+        $admin = User::create([
+            'nama' => 'Administrator Utama',
+            'email' => 'admin@sipeg.local',
             'password' => Hash::make('password'),
-            'role' => 'super_admin',
+            'role' => 'admin',
             'is_active' => true,
         ]);
-        $superAdmin->assignRole('super_admin');
-
-        // =====================
-        // 2. Admin HRD
-        // =====================
-        $adminHrd = User::create([
-            'nama' => 'Admin HRD',
-            'email' => 'adminhrd@sipeg.local',
-            'password' => Hash::make('password'),
-            'role' => 'admin_hrd',
-            'is_active' => true,
-        ]);
-        $adminHrd->assignRole('admin_hrd');
+        $admin->assignRole('admin');
 
         // Jabatan dummy
         $jabatanHrd = Jabatan::create(['nama_jabatan' => 'Staff HRD', 'deskripsi' => 'Staf Human Resources']);
@@ -56,11 +44,11 @@ class DatabaseSeeder extends Seeder
         $divisiHrd = Divisi::create(['nama_divisi' => 'HRD & Umum', 'deskripsi' => 'Divisi sumber daya manusia']);
         $divisiFinance = Divisi::create(['nama_divisi' => 'Keuangan', 'deskripsi' => 'Divisi keuangan dan akuntansi']);
 
-        // Karyawan untuk Admin HRD
+        // Karyawan untuk Admin
         $karAdmin = Karyawan::create([
-            'user_id' => $adminHrd->id,
-            'nip' => 'KAL-HRD-001',
-            'nama_lengkap' => 'Admin HRD',
+            'user_id' => $admin->id,
+            'nip' => 'KAL-ADM-001',
+            'nama_lengkap' => 'Administrator Utama',
             'jabatan_id' => $jabatanHrd->id,
             'divisi_id' => $divisiHrd->id,
             'jenis_kelamin' => 'L',
@@ -73,16 +61,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // =====================
-        // 3. Manajer
+        // 2. Karyawan (Kepala/Manajer Divisi Produksi)
         // =====================
         $manajer = User::create([
             'nama' => 'Budi Santoso',
             'email' => 'manajer@sipeg.local',
             'password' => Hash::make('password'),
-            'role' => 'manajer',
+            'role' => 'karyawan',
             'is_active' => true,
         ]);
-        $manajer->assignRole('manajer');
+        $manajer->assignRole('karyawan');
 
         $karManajer = Karyawan::create([
             'user_id' => $manajer->id,
@@ -99,11 +87,11 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-        // Update manajer_id divisi produksi
+        // Update manajer_id divisi produksi (hirarki organisasi)
         $divisiProduksi->update(['manajer_id' => $karManajer->id]);
 
         // =====================
-        // 4. Karyawan biasa
+        // 3. Karyawan biasa
         // =====================
         $karyawan = User::create([
             'nama' => 'Siti Rahayu',
@@ -129,7 +117,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-        // Konfigurasi sistem kosong (diisi super_admin)
+        // Konfigurasi sistem
         KonfigurasiSistem::create([
             'lat_kantor' => null,
             'lng_kantor' => null,
@@ -141,9 +129,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->command->info('Seeder selesai! Akun dummy:');
-        $this->command->info('super_admin: superadmin@sipeg.local / password');
-        $this->command->info('admin_hrd:   adminhrd@sipeg.local / password');
-        $this->command->info('manajer:     manajer@sipeg.local / password');
-        $this->command->info('karyawan:    karyawan@sipeg.local / password');
+        $this->command->info('admin:    admin@sipeg.local / password');
+        $this->command->info('karyawan: karyawan@sipeg.local / password');
     }
 }

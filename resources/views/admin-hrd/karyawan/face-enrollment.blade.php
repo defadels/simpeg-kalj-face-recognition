@@ -133,7 +133,7 @@ const registerFaceEnrollApp = () => {
                     const faceapi = await getFaceApi();
                     await Promise.all([
                         faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
-                        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
                         faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                     ]);
                     this.modelsLoaded = true;
@@ -195,7 +195,7 @@ const registerFaceEnrollApp = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                     const detections = await faceapi
-                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
                         .withFaceLandmarks(true)
                         .withFaceDescriptors();
 
@@ -211,7 +211,7 @@ const registerFaceEnrollApp = () => {
                         this.faceDetected = false;
                         this.faceDescriptor = null;
                     }
-                }, 500);
+                }, 400);
             },
 
             async handlePhotoUpload(event) {
@@ -238,7 +238,7 @@ const registerFaceEnrollApp = () => {
 
                 const faceapi = await getFaceApi();
                 const detections = await faceapi
-                    .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
+                    .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
                     .withFaceLandmarks(true)
                     .withFaceDescriptors();
 
@@ -260,12 +260,30 @@ const registerFaceEnrollApp = () => {
                     return;
                 }
 
+                let imageBase64 = null;
+                if (this.activeTab === 'webcam') {
+                    const video = document.getElementById('enroll-video');
+                    if (video && video.videoWidth > 0) {
+                        const snapCanvas = document.createElement('canvas');
+                        snapCanvas.width = video.videoWidth;
+                        snapCanvas.height = video.videoHeight;
+                        const snapCtx = snapCanvas.getContext('2d');
+                        snapCtx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+                        imageBase64 = snapCanvas.toDataURL('image/jpeg', 0.85);
+                    }
+                } else if (this.activeTab === 'upload') {
+                    imageBase64 = this.uploadedPhoto;
+                }
+
                 this.saving = true;
                 try {
                     const response = await fetch(STORE_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-                        body: JSON.stringify({ face_descriptor: this.faceDescriptor }),
+                        body: JSON.stringify({
+                            face_descriptor: this.faceDescriptor,
+                            image: imageBase64,
+                        }),
                     });
 
                     const data = await response.json();

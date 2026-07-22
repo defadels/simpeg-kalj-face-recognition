@@ -82,12 +82,8 @@ class CutiIzinController extends Controller
     {
         $query = CutiIzin::with(['karyawan.divisi', 'karyawan.jabatan']);
 
-        // Manajer hanya lihat timnya
-        if (auth()->user()->role === 'manajer') {
-            $divisiId = auth()->user()->karyawan?->managedDivisi?->id;
-            if ($divisiId) {
-                $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $divisiId));
-            }
+        if ($request->divisi_id) {
+            $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $request->divisi_id));
         }
 
         if ($request->status) {

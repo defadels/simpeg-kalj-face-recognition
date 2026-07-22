@@ -55,19 +55,24 @@ class User extends Authenticatable
     /**
      * Cek apakah user adalah role tertentu (shorthand)
      */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->isAdmin();
     }
 
     public function isAdminHrd(): bool
     {
-        return $this->role === 'admin_hrd';
+        return $this->isAdmin();
     }
 
     public function isManajer(): bool
     {
-        return $this->role === 'manajer';
+        return $this->isAdmin();
     }
 
     public function isKaryawan(): bool

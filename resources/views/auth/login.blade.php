@@ -84,13 +84,11 @@
                 <p class="text-[10px] text-slate-400 text-center mb-3 font-bold uppercase tracking-widest">Akun Demo</p>
                 <div class="grid grid-cols-2 gap-2 text-[11px]">
                     @foreach([
-                        ['label' => 'Super Admin', 'email' => 'superadmin@sipeg.local', 'color' => 'bg-purple-50 text-purple-700 border-purple-100 hover:bg-purple-100'],
-                        ['label' => 'Admin HRD', 'email' => 'adminhrd@sipeg.local', 'color' => 'bg-sky-50 text-sky-700 border-sky-100 hover:bg-sky-100'],
-                        ['label' => 'Manajer', 'email' => 'manajer@sipeg.local', 'color' => 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100'],
+                        ['label' => 'Admin', 'email' => 'admin@sipeg.local', 'color' => 'bg-sky-50 text-sky-700 border-sky-100 hover:bg-sky-100'],
                         ['label' => 'Karyawan', 'email' => 'karyawan@sipeg.local', 'color' => 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100'],
                     ] as $demo)
                         <button type="button" onclick="fillDemo('{{ $demo['email'] }}')"
-                            class="border {{ $demo['color'] }} rounded-xl py-2 text-center font-bold transition-colors">
+                            class="border {{ $demo['color'] }} rounded-xl py-2.5 text-center font-bold transition-colors">
                             {{ $demo['label'] }}
                         </button>
                     @endforeach

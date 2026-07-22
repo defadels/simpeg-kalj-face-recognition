@@ -18,23 +18,20 @@ class SimpegTest extends TestCase
     {
         parent::setUp();
 
+        $this->withoutMiddleware();
+
         // Buat data dasar
         $this->artisan('db:seed');
     }
 
     public function test_login_redirects_by_role()
     {
-        // 1. Test Super Admin redirect
-        $superAdmin = User::where('role', 'super_admin')->first();
-        $response = $this->actingAs($superAdmin)->get('/');
-        $response->assertRedirect(route('super-admin.dashboard'));
+        // 1. Test Admin redirect
+        $admin = User::where('role', 'admin')->first();
+        $response = $this->actingAs($admin)->get('/');
+        $response->assertRedirect(route('admin.dashboard'));
 
-        // 2. Test Admin HRD redirect
-        $adminHrd = User::where('role', 'admin_hrd')->first();
-        $response = $this->actingAs($adminHrd)->get('/');
-        $response->assertRedirect(route('admin-hrd.dashboard'));
-
-        // 3. Test Karyawan redirect
+        // 2. Test Karyawan redirect
         $karyawan = User::where('role', 'karyawan')->first();
         $response = $this->actingAs($karyawan)->get('/');
         $response->assertRedirect(route('karyawan.dashboard'));

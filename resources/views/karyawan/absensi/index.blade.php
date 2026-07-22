@@ -245,7 +245,7 @@ const registerAbsensiApp = () => {
                     const faceapi = await getFaceApi();
                     await Promise.all([
                         faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
-                        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
                         faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                     ]);
                     this.modelsLoaded = true;
@@ -317,7 +317,7 @@ const registerAbsensiApp = () => {
                         const faceapi = await getFaceApi();
                         await Promise.all([
                             faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
-                            faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+                            faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
                             faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                         ]);
                         this.modelsLoaded = true;
@@ -345,7 +345,7 @@ const registerAbsensiApp = () => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                     const detections = await faceapi
-                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
                         .withFaceLandmarks(true)
                         .withFaceDescriptors();
 
