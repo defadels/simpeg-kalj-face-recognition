@@ -133,12 +133,14 @@ const registerFaceEnrollApp = () => {
                     const faceapi = await getFaceApi();
                     await Promise.all([
                         faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+                        faceapi.nets.ssdMobilenetv1.loadFromUri(MODELS_URL),
                         faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
                         faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                     ]);
                     this.modelsLoaded = true;
                     this.cameraStatus = 'ready';
-                    console.log('Models loaded for enrollment');
+                    console.log('All face models loaded successfully for enrollment');
                 } catch(e) {
                     console.warn('Models load failed:', e);
                     this.cameraStatus = 'error';
@@ -189,29 +191,40 @@ const registerFaceEnrollApp = () => {
                 const faceapi = await getFaceApi();
 
                 this.detectionInterval = setInterval(async () => {
-                    if (!video || !video.srcObject) return;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    try {
+                        if (!video || !video.srcObject || video.paused || video.ended) return;
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    const detections = await faceapi
-                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
-                        .withFaceLandmarks(true)
-                        .withFaceDescriptors();
+                        let detections = await faceapi
+                            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.25 }))
+                            .withFaceLandmarks(true)
+                            .withFaceDescriptors();
 
-                    if (detections.length === 1) {
-                        this.faceDetected = true;
-                        this.faceDescriptor = Array.from(detections[0].descriptor);
+                        if (detections.length === 0 && faceapi.nets.ssdMobilenetv1 && faceapi.nets.ssdMobilenetv1.isLoaded) {
+                            detections = await faceapi
+                                .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+                                .withFaceLandmarks(true)
+                                .withFaceDescriptors();
+                        }
 
-                        const box = detections[0].detection.box;
-                        ctx.strokeStyle = '#10b981';
-                        ctx.lineWidth = 3;
-                        ctx.strokeRect(box.x, box.y, box.width, box.height);
-                    } else {
-                        this.faceDetected = false;
-                        this.faceDescriptor = null;
+                        if (detections.length === 1) {
+                            this.faceDetected = true;
+                            this.faceDescriptor = Array.from(detections[0].descriptor);
+
+                            const box = detections[0].detection.box;
+                            ctx.strokeStyle = '#10b981';
+                            ctx.lineWidth = 3;
+                            ctx.strokeRect(box.x, box.y, box.width, box.height);
+                        } else {
+                            this.faceDetected = false;
+                            this.faceDescriptor = null;
+                        }
+                    } catch(err) {
+                        console.error('Detection error:', err);
                     }
-                }, 400);
+                }, 300);
             },
 
             async handlePhotoUpload(event) {
@@ -237,10 +250,17 @@ const registerFaceEnrollApp = () => {
                 }
 
                 const faceapi = await getFaceApi();
-                const detections = await faceapi
-                    .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
+                let detections = await faceapi
+                    .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.25 }))
                     .withFaceLandmarks(true)
                     .withFaceDescriptors();
+
+                if (detections.length === 0 && faceapi.nets.ssdMobilenetv1 && faceapi.nets.ssdMobilenetv1.isLoaded) {
+                    detections = await faceapi
+                        .detectAllFaces(img, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+                        .withFaceLandmarks(true)
+                        .withFaceDescriptors();
+                }
 
                 if (detections.length === 0) {
                     this.uploadFaceStatus = 'not-found';
