@@ -245,7 +245,9 @@ const registerAbsensiApp = () => {
                     const faceapi = await getFaceApi();
                     await Promise.all([
                         faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+                        faceapi.nets.ssdMobilenetv1.loadFromUri(MODELS_URL),
                         faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
+                        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
                         faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                     ]);
                     this.modelsLoaded = true;
@@ -317,7 +319,9 @@ const registerAbsensiApp = () => {
                         const faceapi = await getFaceApi();
                         await Promise.all([
                             faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+                            faceapi.nets.ssdMobilenetv1.loadFromUri(MODELS_URL),
                             faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
+                            faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
                             faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
                         ]);
                         this.modelsLoaded = true;
@@ -338,41 +342,52 @@ const registerAbsensiApp = () => {
                 const faceapi = await getFaceApi();
 
                 this.faceDetectionInterval = setInterval(async () => {
-                    if (video.paused || video.ended) return;
+                    try {
+                        if (!video || video.paused || video.ended) return;
 
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    const detections = await faceapi
-                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 }))
-                        .withFaceLandmarks(true)
-                        .withFaceDescriptors();
+                        let detections = await faceapi
+                            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.25 }))
+                            .withFaceLandmarks(true)
+                            .withFaceDescriptors();
 
-                    if (detections.length === 1) {
-                        this.faceStatus = 'detected';
-                        this.faceDescriptor = Array.from(detections[0].descriptor);
+                        if (detections.length === 0 && faceapi.nets.ssdMobilenetv1 && faceapi.nets.ssdMobilenetv1.isLoaded) {
+                            detections = await faceapi
+                                .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 }))
+                                .withFaceLandmarks(true)
+                                .withFaceDescriptors();
+                        }
 
-                        // Draw green matching square around detected face
-                        const box = detections[0].detection.box;
-                        ctx.strokeStyle = '#10b981';
-                        ctx.lineWidth = 3;
-                        ctx.strokeRect(box.x, box.y, box.width, box.height);
-                    } else if (detections.length === 0) {
-                        this.faceStatus = 'no-face';
-                        this.faceDescriptor = null;
-                    } else {
-                        this.faceStatus = 'no-face';
-                        this.faceDescriptor = null;
-                        
-                        // Warning for multiple faces detected
-                        ctx.fillStyle = 'rgba(200, 16, 46, 0.85)';
-                        ctx.fillRect(10, canvas.height - 40, canvas.width - 20, 30);
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 12px Plus Jakarta Sans';
-                        ctx.fillText('HANYA BOLEH SATU WAJAH DI DEPAN KAMERA!', 20, canvas.height - 20);
+                        if (detections.length === 1) {
+                            this.faceStatus = 'detected';
+                            this.faceDescriptor = Array.from(detections[0].descriptor);
+
+                            // Draw green matching square around detected face
+                            const box = detections[0].detection.box;
+                            ctx.strokeStyle = '#10b981';
+                            ctx.lineWidth = 3;
+                            ctx.strokeRect(box.x, box.y, box.width, box.height);
+                        } else if (detections.length === 0) {
+                            this.faceStatus = 'no-face';
+                            this.faceDescriptor = null;
+                        } else {
+                            this.faceStatus = 'no-face';
+                            this.faceDescriptor = null;
+                            
+                            // Warning for multiple faces detected
+                            ctx.fillStyle = 'rgba(200, 16, 46, 0.85)';
+                            ctx.fillRect(10, canvas.height - 40, canvas.width - 20, 30);
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 12px Plus Jakarta Sans';
+                            ctx.fillText('HANYA BOLEH SATU WAJAH DI DEPAN KAMERA!', 20, canvas.height - 20);
+                        }
+                    } catch(err) {
+                        console.error('Absensi face detection error:', err);
                     }
-                }, 400);
+                }, 300);
             },
 
             stopCamera() {
