@@ -104,18 +104,22 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     Cuti & Izin
                 </a>
+                <a href="{{ route('profile.edit') }}" class="sidebar-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Edit Profil
+                </a>
             @endif
         </nav>
 
         <!-- User Profile Card -->
         <div class="p-4 border-t border-white/5 bg-[#070e1b]/50">
-            <div class="flex items-center gap-3">
-                <img src="{{ auth()->user()->avatar }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10" alt="Avatar">
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 group hover:opacity-80 transition-opacity">
+                <img src="{{ auth()->user()->avatar }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10 group-hover:ring-sky-400" alt="Avatar">
                 <div class="flex-1 min-w-0">
-                    <div class="text-white text-xs font-bold truncate leading-tight">{{ auth()->user()->nama }}</div>
+                    <div class="text-white text-xs font-bold truncate leading-tight group-hover:text-sky-300">{{ auth()->user()->nama }}</div>
                     <div class="text-slate-500 text-[10px] truncate mt-0.5 font-medium uppercase tracking-wider">{{ auth()->user()->role }}</div>
                 </div>
-            </div>
+            </a>
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl text-xs font-semibold transition-all duration-200">
@@ -171,18 +175,19 @@
                     <a href="{{ route('karyawan.absensi.index') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.index') ? 'active' : '' }}">Absensi</a>
                     <a href="{{ route('karyawan.absensi.riwayat') }}" class="sidebar-link {{ request()->routeIs('karyawan.absensi.riwayat') ? 'active' : '' }}">Riwayat</a>
                     <a href="{{ route('karyawan.cuti-izin.index') }}" class="sidebar-link {{ request()->routeIs('karyawan.cuti-izin.*') ? 'active' : '' }}">Cuti & Izin</a>
+                    <a href="{{ route('profile.edit') }}" class="sidebar-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Edit Profil</a>
                 @endif
             </nav>
 
             <!-- User Info (mobile) -->
             <div class="p-4 border-t border-white/5 bg-[#070e1b]/50">
-                <div class="flex items-center gap-3">
+                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3">
                     <img src="{{ auth()->user()->avatar }}" class="w-9 h-9 rounded-xl object-cover" alt="Avatar">
                     <div class="flex-1 min-w-0">
                         <div class="text-white text-xs font-bold truncate leading-tight">{{ auth()->user()->nama }}</div>
                         <div class="text-slate-500 text-[9px] truncate font-medium uppercase tracking-wider">{{ auth()->user()->role }}</div>
                     </div>
-                </div>
+                </a>
             </div>
         </aside>
     </div>

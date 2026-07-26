@@ -2,6 +2,27 @@
     <x-slot name="title">Dashboard</x-slot>
     <x-slot name="breadcrumb">Selamat datang, {{ $karyawan->nama_lengkap }}</x-slot>
 
+    <!-- Profile Banner & Edit Shortcut -->
+    <div class="card mb-6 bg-gradient-to-r from-slate-900 via-slate-800 to-[#0056B3] text-white border-0 shadow-lg relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-sky-500/20 rounded-full blur-xl pointer-events-none"></div>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
+            <div class="flex items-center gap-4 text-center sm:text-left">
+                <img src="{{ auth()->user()->avatar }}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-white/20 shadow-md flex-shrink-0" alt="Avatar">
+                <div>
+                    <h2 class="text-lg font-bold text-white">{{ $karyawan->nama_lengkap }}</h2>
+                    <p class="text-sky-200 text-xs font-medium mt-0.5">
+                        NIP: <span class="font-mono text-white">{{ $karyawan->nip }}</span> |
+                        {{ $karyawan->jabatan?->nama_jabatan ?? '-' }} — Divisi {{ $karyawan->divisi?->nama_divisi ?? '-' }}
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('profile.edit') }}" class="btn-primary bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md flex-shrink-0 text-xs py-2 px-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                Edit Profil Saya
+            </a>
+        </div>
+    </div>
+
     <!-- Stat Cards -->
     <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div class="stat-card" style="background: linear-gradient(135deg, #0ea5e9, #0284c7)">
