@@ -7,7 +7,7 @@
             <form method="POST" action="{{ route('admin-hrd.karyawan.update', $karyawan) }}" enctype="multipart/form-data" class="space-y-5">
                 @csrf @method('PUT')
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="form-label">NIP *</label><input type="text" name="nip" value="{{ old('nip', $karyawan->nip) }}" class="form-input" required>@error('nip')<p class="form-error text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
+                    <div><label class="form-label">ID Karyawan *</label><input type="text" name="nip" value="{{ old('nip', $karyawan->nip) }}" class="form-input font-mono font-bold" required>@error('nip')<p class="form-error text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
                     <div><label class="form-label">Nama Lengkap *</label><input type="text" name="nama_lengkap" value="{{ old('nama_lengkap', $karyawan->nama_lengkap) }}" class="form-input" required>@error('nama_lengkap')<p class="form-error text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
                     <div><label class="form-label">Email *</label><input type="email" name="email" value="{{ old('email', $karyawan->user?->email) }}" class="form-input" required>@error('email')<p class="form-error text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
                     <div>

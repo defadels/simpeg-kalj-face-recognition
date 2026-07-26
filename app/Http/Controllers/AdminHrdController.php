@@ -162,11 +162,16 @@ class AdminHrdController extends Controller
     {
         $jabatan = Jabatan::all();
         $divisi = Divisi::all();
-        return view('admin-hrd.karyawan.create', compact('jabatan', 'divisi'));
+        $nextIdKaryawan = Karyawan::generateNextNip();
+        return view('admin-hrd.karyawan.create', compact('jabatan', 'divisi', 'nextIdKaryawan'));
     }
 
     public function storeKaryawan(Request $request)
     {
+        if (!$request->filled('nip')) {
+            $request->merge(['nip' => Karyawan::generateNextNip()]);
+        }
+
         $validated = $request->validate([
             'nip' => 'required|string|unique:karyawan',
             'nama_lengkap' => 'required|string|max:255',

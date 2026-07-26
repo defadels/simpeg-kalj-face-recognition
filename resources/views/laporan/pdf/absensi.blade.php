@@ -47,7 +47,7 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>NIP</th>
+                <th>ID Karyawan</th>
                 <th>Nama Karyawan</th>
                 <th>Divisi</th>
                 <th>Jadwal Divisi</th>

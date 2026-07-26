@@ -6,7 +6,7 @@
             <div class="card text-center">
                 <img src="{{ $karyawan->foto_url }}" class="w-24 h-24 rounded-2xl object-cover mx-auto mb-3" alt="">
                 <h3 class="font-bold text-slate-800 text-lg">{{ $karyawan->nama_lengkap }}</h3>
-                <p class="text-slate-500 text-sm">{{ $karyawan->nip }}</p>
+                <p class="text-slate-500 text-sm font-mono font-semibold">{{ $karyawan->nip }}</p>
                 <div class="flex justify-center gap-2 mt-2">
                     <span class="badge {{ $karyawan->status === 'aktif' ? 'badge-green' : 'badge-red' }}">{{ ucfirst($karyawan->status) }}</span>
                     @if($karyawan->face_data)<span class="badge badge-purple">✓ Face Enrolled</span>@endif
@@ -20,6 +20,7 @@
             <div class="card">
                 <h4 class="font-semibold text-slate-700 mb-3">Informasi</h4>
                 <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-slate-500">ID Karyawan</span><span class="font-mono font-bold text-slate-800">{{ $karyawan->nip }}</span></div>
                     <div class="flex justify-between"><span class="text-slate-500">Jabatan</span><span class="font-medium">{{ $karyawan->jabatan?->nama_jabatan ?? '-' }}</span></div>
                     <div class="flex justify-between"><span class="text-slate-500">Divisi</span><span class="font-medium">{{ $karyawan->divisi?->nama_divisi ?? '-' }}</span></div>
                     <div class="flex justify-between"><span class="text-slate-500">Gender</span><span class="font-medium">{{ $karyawan->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</span></div>

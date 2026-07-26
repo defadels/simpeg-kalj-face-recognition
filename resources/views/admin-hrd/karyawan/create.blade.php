@@ -7,7 +7,7 @@
             <form method="POST" action="{{ route('admin-hrd.karyawan.store') }}" enctype="multipart/form-data" class="space-y-5">
                 @csrf
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="form-label">NIP *</label><input type="text" name="nip" value="{{ old('nip') }}" class="form-input" required placeholder="KAL-XXX-001">@error('nip')<p class="form-error">{{ $message }}</p>@enderror</div>
+                    <div><label class="form-label">ID Karyawan *</label><input type="text" name="nip" value="{{ old('nip', $nextIdKaryawan) }}" class="form-input font-mono font-bold bg-slate-50 text-slate-700" required placeholder="KALJ-0001">@error('nip')<p class="form-error">{{ $message }}</p>@enderror</div>
                     <div><label class="form-label">Nama Lengkap *</label><input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" class="form-input" required>@error('nama_lengkap')<p class="form-error">{{ $message }}</p>@enderror</div>
                     <div><label class="form-label">Email (untuk login) *</label><input type="email" name="email" value="{{ old('email') }}" class="form-input" required>@error('email')<p class="form-error">{{ $message }}</p>@enderror</div>
                     <div><label class="form-label">Password *</label><input type="password" name="password" class="form-input" required minlength="8">@error('password')<p class="form-error">{{ $message }}</p>@enderror</div>
