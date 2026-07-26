@@ -9,7 +9,7 @@
                 <img src="{{ $karyawan->foto_url }}" class="w-14 h-14 rounded-2xl object-cover" alt="">
                 <div>
                     <h3 class="font-semibold text-slate-800">{{ $karyawan->nama_lengkap }}</h3>
-                    <p class="text-slate-500 text-sm">{{ $karyawan->nip }} • {{ $karyawan->jabatan?->nama_jabatan }}</p>
+                    <p class="text-slate-500 text-sm font-mono font-medium">ID: {{ $karyawan->nip }} • {{ $karyawan->jabatan?->nama_jabatan }}</p>
                     @if($karyawan->face_data)
                         <span class="badge badge-green mt-1">✓ Sudah ada data wajah terdaftar</span>
                     @else

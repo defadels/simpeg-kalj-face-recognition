@@ -36,7 +36,7 @@
                     @if($karyawan)
                         <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
                             <span class="px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-semibold backdrop-blur-md">
-                                NIP: {{ $karyawan->nip }}
+                                ID: {{ $karyawan->nip }}
                             </span>
                             <span class="px-2.5 py-1 rounded-lg bg-sky-500/30 text-sky-100 text-xs font-semibold backdrop-blur-md">
                                 {{ $karyawan->jabatan?->nama_jabatan ?? 'Tanpa Jabatan' }}

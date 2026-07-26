@@ -35,7 +35,7 @@ class AbsensiExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
     {
         return [
             'No',
-            'NIP',
+            'ID Karyawan',
             'Nama Karyawan',
             'Divisi',
             'Jadwal Divisi',

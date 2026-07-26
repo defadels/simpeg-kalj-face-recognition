@@ -65,7 +65,7 @@ class DatabaseSeeder extends Seeder
         // Karyawan untuk Admin
         $karAdmin = Karyawan::create([
             'user_id' => $admin->id,
-            'nip' => 'KAL-ADM-001',
+            'nip' => 'KALJ-0001',
             'nama_lengkap' => 'Administrator Utama',
             'jabatan_id' => $jabatanHrd->id,
             'divisi_id' => $divisiHrd->id,
@@ -92,7 +92,7 @@ class DatabaseSeeder extends Seeder
 
         $karManajer = Karyawan::create([
             'user_id' => $manajer->id,
-            'nip' => 'KAL-PRD-001',
+            'nip' => 'KALJ-0002',
             'nama_lengkap' => 'Budi Santoso',
             'jabatan_id' => $jabatanMgr->id,
             'divisi_id' => $divisiProduksi->id,
@@ -122,7 +122,7 @@ class DatabaseSeeder extends Seeder
 
         Karyawan::create([
             'user_id' => $karyawan->id,
-            'nip' => 'KAL-PRD-002',
+            'nip' => 'KALJ-0003',
             'nama_lengkap' => 'Siti Rahayu',
             'jabatan_id' => $jabatanStaff->id,
             'divisi_id' => $divisiProduksi->id,

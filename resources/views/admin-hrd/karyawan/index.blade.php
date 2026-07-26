@@ -14,7 +14,7 @@
         </div>
 
         <form method="GET" class="flex flex-wrap gap-3 mb-5">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / NIP..." class="form-input max-w-xs">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / ID Karyawan..." class="form-input max-w-xs">
             <select name="divisi_id" class="form-input max-w-xs">
                 <option value="">Semua Divisi</option>
                 @foreach($divisi as $div)
@@ -37,7 +37,7 @@
                 <thead>
                     <tr class="border-b border-slate-100">
                         <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Karyawan</th>
-                        <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">NIP</th>
+                        <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">ID Karyawan</th>
                         <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Jabatan / Divisi</th>
                         <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Face</th>
                         <th class="text-left py-3 px-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Status</th>

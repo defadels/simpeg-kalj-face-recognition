@@ -107,4 +107,22 @@ class Karyawan extends Model
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap) . '&background=0EA5E9&color=fff&size=128';
     }
+
+    /**
+     * Generate ID Karyawan otomatis & berurutan (contoh: KALJ-0001, KALJ-0002)
+     */
+    public static function generateNextNip(): string
+    {
+        $lastKaryawan = static::where('nip', 'like', 'KALJ-%')
+            ->orderByRaw('CAST(SUBSTRING(nip, 6) AS UNSIGNED) DESC')
+            ->first();
+
+        if ($lastKaryawan && preg_match('/KALJ-(\d+)/i', $lastKaryawan->nip, $matches)) {
+            $nextNumber = intval($matches[1]) + 1;
+        } else {
+            $nextNumber = static::count() + 1;
+        }
+
+        return 'KALJ-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
 }

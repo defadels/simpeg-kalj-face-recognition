@@ -11,7 +11,7 @@
                 <div>
                     <h2 class="text-lg font-bold text-white">{{ $karyawan->nama_lengkap }}</h2>
                     <p class="text-sky-200 text-xs font-medium mt-0.5">
-                        NIP: <span class="font-mono text-white">{{ $karyawan->nip }}</span> |
+                        ID: <span class="font-mono text-white">{{ $karyawan->nip }}</span> |
                         {{ $karyawan->jabatan?->nama_jabatan ?? '-' }} — Divisi {{ $karyawan->divisi?->nama_divisi ?? '-' }}
                     </p>
                 </div>
