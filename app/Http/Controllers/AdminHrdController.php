@@ -106,6 +106,9 @@ class AdminHrdController extends Controller
             'nama_divisi' => 'required|string|max:255|unique:divisi',
             'manajer_id' => 'nullable|exists:karyawan,id',
             'deskripsi' => 'nullable|string',
+            'jam_masuk' => 'required|date_format:H:i',
+            'jam_keluar' => 'required|date_format:H:i',
+            'toleransi_menit' => 'required|integer|min:0|max:120',
         ]);
         Divisi::create($validated);
         return redirect()->route('admin-hrd.divisi.index')->with('success', 'Divisi berhasil ditambahkan.');
@@ -123,6 +126,9 @@ class AdminHrdController extends Controller
             'nama_divisi' => 'required|string|max:255|unique:divisi,nama_divisi,' . $divisi->id,
             'manajer_id' => 'nullable|exists:karyawan,id',
             'deskripsi' => 'nullable|string',
+            'jam_masuk' => 'required|date_format:H:i',
+            'jam_keluar' => 'required|date_format:H:i',
+            'toleransi_menit' => 'required|integer|min:0|max:120',
         ]);
         $divisi->update($validated);
         return redirect()->route('admin-hrd.divisi.index')->with('success', 'Divisi berhasil diperbarui.');

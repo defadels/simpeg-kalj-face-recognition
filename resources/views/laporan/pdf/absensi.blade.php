@@ -50,6 +50,7 @@
                 <th>NIP</th>
                 <th>Nama Karyawan</th>
                 <th>Divisi</th>
+                <th>Jadwal Divisi</th>
                 <th>Tanggal</th>
                 <th>Masuk</th>
                 <th>Keluar</th>
@@ -82,6 +83,7 @@
                     <td>{{ $row->karyawan->nip }}</td>
                     <td><strong>{{ $row->karyawan->nama_lengkap }}</strong></td>
                     <td>{{ $row->karyawan->divisi?->nama_divisi ?? '-' }}</td>
+                    <td>{{ $row->karyawan->divisi?->jam_kerja_formatted ?? '-' }}</td>
                     <td>{{ $row->tanggal->format('d/m/Y') }}</td>
                     <td>{{ $row->waktu_masuk ? substr($row->waktu_masuk, 0, 5) : '-' }}</td>
                     <td>{{ $row->waktu_keluar ? substr($row->waktu_keluar, 0, 5) : '-' }}</td>
@@ -89,7 +91,7 @@
                     <td><span class="badge {{ $badge }}">{{ $label }}</span></td>
                 </tr>
             @empty
-                <tr><td colspan="9" style="text-align:center; padding: 20px; color: #94a3b8;">Tidak ada data</td></tr>
+                <tr><td colspan="10" style="text-align:center; padding: 20px; color: #94a3b8;">Tidak ada data</td></tr>
             @endforelse
         </tbody>
     </table>

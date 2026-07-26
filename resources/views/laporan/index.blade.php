@@ -70,6 +70,7 @@
                         <tr class="border-b border-slate-100">
                             <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Karyawan</th>
                             <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Divisi</th>
+                            <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Jadwal Divisi</th>
                             <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Tanggal</th>
                             <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Masuk</th>
                             <th class="text-left py-3 px-2 font-semibold text-slate-500 uppercase">Keluar</th>
@@ -83,6 +84,7 @@
                             <tr class="table-row">
                                 <td class="py-2 px-2 font-medium">{{ $row->karyawan->nama_lengkap }}</td>
                                 <td class="py-2 px-2 text-slate-500">{{ $row->karyawan->divisi?->nama_divisi ?? '-' }}</td>
+                                <td class="py-2 px-2 font-mono text-slate-600">{{ $row->karyawan->divisi?->jam_kerja_formatted ?? '-' }}</td>
                                 <td class="py-2 px-2 text-slate-600">{{ $row->tanggal->format('d/m/Y') }}</td>
                                 <td class="py-2 px-2 font-mono">{{ $row->waktu_masuk ? substr($row->waktu_masuk, 0, 5) : '-' }}</td>
                                 <td class="py-2 px-2 font-mono">{{ $row->waktu_keluar ? substr($row->waktu_keluar, 0, 5) : '-' }}</td>
@@ -90,7 +92,7 @@
                                 <td class="py-2 px-2"><span class="badge badge-{{ $badge['color'] }}">{{ $badge['label'] }}</span></td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada data untuk periode ini.</td></tr>
+                            <tr><td colspan="8" class="py-8 text-center text-slate-400">Tidak ada data untuk periode ini.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

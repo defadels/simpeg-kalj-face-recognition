@@ -6,9 +6,16 @@
 
         {{-- Status Kehadiran Hari Ini --}}
         <div class="card">
-            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Kehadiran Hari Ini</h3>
-                <span class="text-xs font-bold text-slate-400">{{ now()->isoFormat('dddd, D MMMM Y') }}</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-slate-100 pb-3 gap-2">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Kehadiran Hari Ini</h3>
+                    @if($karyawan->divisi)
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Divisi <strong class="text-slate-700">{{ $karyawan->divisi->nama_divisi }}</strong> — Jam Kerja: <span class="font-mono font-semibold text-[#0056B3]">{{ $karyawan->divisi->jam_kerja_formatted }}</span> (Toleransi: {{ $karyawan->divisi->toleransi_menit ?? 15 }}m)
+                        </p>
+                    @endif
+                </div>
+                <span class="text-xs font-bold text-slate-400 self-start sm:self-auto">{{ now()->isoFormat('dddd, D MMMM Y') }}</span>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
