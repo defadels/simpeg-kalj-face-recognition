@@ -157,10 +157,13 @@ class AbsensiController extends Controller
             $absensi->status_lokasi = 'valid';
             $absensi->status_face = 'berhasil';
 
-            // Tentukan status kehadiran
-            $jamMasuk = Carbon::parse(today()->format('Y-m-d') . ' ' . $konfigurasi->jam_masuk);
-            $toleransi = Carbon::parse(today()->format('Y-m-d') . ' ' . $konfigurasi->jam_masuk)
-                ->addMinutes($konfigurasi->toleransi_menit);
+            // Tentukan status kehadiran berdasarkan jam masuk divisi karyawan (atau default konfigurasi sistem)
+            $divisi = $karyawan->divisi;
+            $targetJamMasukStr = $divisi?->jam_masuk ?: $konfigurasi->jam_masuk;
+            $toleransiMenit = $divisi?->toleransi_menit !== null ? $divisi->toleransi_menit : $konfigurasi->toleransi_menit;
+
+            $jamMasuk = Carbon::parse(today()->format('Y-m-d') . ' ' . $targetJamMasukStr);
+            $toleransi = (clone $jamMasuk)->addMinutes($toleransiMenit);
             $waktuMasuk = Carbon::parse(today()->format('Y-m-d') . ' ' . $sekarang);
 
             $absensi->status_kehadiran = $waktuMasuk->lte($toleransi) ? 'hadir' : 'terlambat';

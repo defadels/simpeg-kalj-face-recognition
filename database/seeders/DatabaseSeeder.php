@@ -39,10 +39,28 @@ class DatabaseSeeder extends Seeder
         $jabatanStaff = Jabatan::create(['nama_jabatan' => 'Staff Produksi', 'deskripsi' => 'Staf produksi']);
         $jabatanFinance = Jabatan::create(['nama_jabatan' => 'Staff Finance', 'deskripsi' => 'Staf keuangan']);
 
-        // Divisi dummy (manajer_id nullable dulu)
-        $divisiProduksi = Divisi::create(['nama_divisi' => 'Produksi', 'deskripsi' => 'Divisi pengolahan hasil laut']);
-        $divisiHrd = Divisi::create(['nama_divisi' => 'HRD & Umum', 'deskripsi' => 'Divisi sumber daya manusia']);
-        $divisiFinance = Divisi::create(['nama_divisi' => 'Keuangan', 'deskripsi' => 'Divisi keuangan dan akuntansi']);
+        // Divisi dummy (manajer_id nullable dulu) dengan jam kerja berbeda
+        $divisiProduksi = Divisi::create([
+            'nama_divisi' => 'Produksi',
+            'deskripsi' => 'Divisi pengolahan hasil laut',
+            'jam_masuk' => '07:00:00',
+            'jam_keluar' => '15:00:00',
+            'toleransi_menit' => 15,
+        ]);
+        $divisiHrd = Divisi::create([
+            'nama_divisi' => 'HRD & Umum',
+            'deskripsi' => 'Divisi sumber daya manusia',
+            'jam_masuk' => '08:00:00',
+            'jam_keluar' => '17:00:00',
+            'toleransi_menit' => 15,
+        ]);
+        $divisiFinance = Divisi::create([
+            'nama_divisi' => 'Keuangan',
+            'deskripsi' => 'Divisi keuangan dan akuntansi',
+            'jam_masuk' => '08:30:00',
+            'jam_keluar' => '16:30:00',
+            'toleransi_menit' => 10,
+        ]);
 
         // Karyawan untuk Admin
         $karAdmin = Karyawan::create([

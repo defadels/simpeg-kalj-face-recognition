@@ -21,7 +21,7 @@
                 <thead>
                     <tr class="border-b border-slate-100">
                         <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Karyawan</th>
-                        <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Divisi</th>
+                        <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Divisi & Jadwal</th>
                         <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Masuk</th>
                         <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Keluar</th>
                         <th class="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Jam Kerja</th>
@@ -40,7 +40,12 @@
                                     <span class="font-medium">{{ $row->karyawan->nama_lengkap }}</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-3 text-slate-500 text-xs">{{ $row->karyawan->divisi?->nama_divisi ?? '-' }}</td>
+                            <td class="py-3 px-3 text-xs">
+                                <div class="font-semibold text-slate-700">{{ $row->karyawan->divisi?->nama_divisi ?? '-' }}</div>
+                                @if($row->karyawan->divisi)
+                                    <div class="text-[11px] text-slate-400 font-mono">{{ $row->karyawan->divisi->jam_kerja_formatted }}</div>
+                                @endif
+                            </td>
                             <td class="py-3 px-3 font-mono text-xs">{{ $row->waktu_masuk ? substr($row->waktu_masuk, 0, 5) : '-' }}</td>
                             <td class="py-3 px-3 font-mono text-xs">{{ $row->waktu_keluar ? substr($row->waktu_keluar, 0, 5) : '-' }}</td>
                             <td class="py-3 px-3 text-xs">{{ $row->jam_kerja ? $row->jam_kerja . 'j' : '-' }}</td>
