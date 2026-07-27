@@ -86,15 +86,16 @@ class CutiIzinController extends Controller
             $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $request->divisi_id));
         }
 
-        if ($request->status) {
+        if ($request->has('status') && $request->status !== '' && $request->status !== 'semua') {
             $query->where('status', $request->status);
-        } else {
+        } elseif (!$request->has('status')) {
             $query->where('status', 'pending');
         }
 
         $cutiIzin = $query->latest()->paginate(15)->withQueryString();
+        $divisiList = \App\Models\Divisi::all();
 
-        return view('approval.cuti-izin.index', compact('cutiIzin'));
+        return view('approval.cuti-izin.index', compact('cutiIzin', 'divisiList'));
     }
 
     public function showApproval(CutiIzin $cutiIzin)
@@ -126,7 +127,9 @@ class CutiIzinController extends Controller
         // Update status absensi menjadi 'cuti' atau 'izin' untuk hari-hari yang dicakup
         $this->updateAbsensiStatus($cutiIzin);
 
-        return redirect()->route('approval.cuti-izin.index')
+        $redirectRoute = auth()->user()->isAdmin() ? 'admin.cuti-izin.index' : 'approval.cuti-izin.index';
+
+        return redirect()->route($redirectRoute)
             ->with('success', 'Pengajuan disetujui.');
     }
 
@@ -145,7 +148,9 @@ class CutiIzinController extends Controller
             'tanggal_proses' => now(),
         ]);
 
-        return redirect()->route('approval.cuti-izin.index')
+        $redirectRoute = auth()->user()->isAdmin() ? 'admin.cuti-izin.index' : 'approval.cuti-izin.index';
+
+        return redirect()->route($redirectRoute)
             ->with('success', 'Pengajuan ditolak.');
     }
 
