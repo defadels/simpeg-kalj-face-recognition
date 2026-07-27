@@ -6,12 +6,20 @@
             <h3 class="font-semibold text-slate-800">Pengajuan Cuti & Izin</h3>
         </div>
 
-        <form method="GET" class="flex gap-3 mb-5">
+        <form method="GET" class="flex flex-wrap gap-3 mb-5">
+            <select name="divisi_id" class="form-input w-48">
+                <option value="">Semua Divisi</option>
+                @if(isset($divisiList))
+                    @foreach($divisiList as $div)
+                        <option value="{{ $div->id }}" {{ request('divisi_id') == $div->id ? 'selected' : '' }}>{{ $div->nama_divisi }}</option>
+                    @endforeach
+                @endif
+            </select>
             <select name="status" class="form-input w-40">
-                <option value="" {{ !request('status') ? 'selected' : '' }}>Pending</option>
+                <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="disetujui" {{ request('status') === 'disetujui' ? 'selected' : '' }}>Disetujui</option>
                 <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
-                <option value="" {{ request('status') === '' && request()->has('status') ? 'selected' : '' }}>Semua</option>
+                <option value="semua" {{ request('status') === 'semua' ? 'selected' : '' }}>Semua Status</option>
             </select>
             <button type="submit" class="btn-primary">Filter</button>
         </form>
@@ -46,7 +54,7 @@
                             <td class="py-3 px-3 text-center font-bold text-slate-700">{{ $row->jumlah_hari }}</td>
                             <td class="py-3 px-3"><span class="badge badge-{{ $badge['color'] }}">{{ $badge['label'] }}</span></td>
                             <td class="py-3 px-3 text-right">
-                                <a href="{{ route('approval.cuti-izin.show', $row) }}" class="text-sky-600 text-xs font-medium">Detail & Review</a>
+                                <a href="{{ auth()->user()->isAdmin() ? route('admin.cuti-izin.show', $row) : route('approval.cuti-izin.show', $row) }}" class="text-sky-600 text-xs font-medium">Detail & Review</a>
                             </td>
                         </tr>
                     @empty

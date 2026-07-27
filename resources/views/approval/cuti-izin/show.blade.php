@@ -47,16 +47,16 @@
             @endif
 
             {{-- Action Buttons --}}
-            @if($cutiIzin->status === 'pending' && in_array(auth()->user()->role, ['admin_hrd', 'manajer']))
+            @if($cutiIzin->status === 'pending' && (auth()->user()->isAdmin() || in_array(auth()->user()->role, ['admin', 'admin_hrd', 'manajer', 'super_admin'])))
                 <div class="grid grid-cols-2 gap-4" x-data="{ showReject: false }">
-                    <form method="POST" action="{{ route('approval.cuti-izin.approve', $cutiIzin) }}" class="space-y-2">
+                    <form method="POST" action="{{ auth()->user()->isAdmin() ? route('admin.cuti-izin.approve', $cutiIzin) : route('approval.cuti-izin.approve', $cutiIzin) }}" class="space-y-2">
                         @csrf @method('PATCH')
                         <textarea name="catatan_prosesor" placeholder="Catatan (opsional)..." rows="2" class="form-input text-sm"></textarea>
                         <button type="submit" class="btn-success w-full justify-center" onclick="return confirm('Setujui pengajuan ini?')">
                             ✓ Setujui
                         </button>
                     </form>
-                    <form method="POST" action="{{ route('approval.cuti-izin.reject', $cutiIzin) }}" class="space-y-2">
+                    <form method="POST" action="{{ auth()->user()->isAdmin() ? route('admin.cuti-izin.reject', $cutiIzin) : route('approval.cuti-izin.reject', $cutiIzin) }}" class="space-y-2">
                         @csrf @method('PATCH')
                         <textarea name="catatan_prosesor" placeholder="Alasan penolakan (wajib)..." rows="2" class="form-input text-sm" required></textarea>
                         <button type="submit" class="btn-danger w-full justify-center" onclick="return confirm('Tolak pengajuan ini?')">
