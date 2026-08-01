@@ -167,6 +167,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputLat = document.getElementById('input-latitude');
     const inputLng = document.getElementById('input-longitude');
 
+    // Override default Leaflet icon paths
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    });
+
+    // Custom Vector SVG Pin Icon (100% lokal & anti-broken)
+    const customPinIcon = L.divIcon({
+        className: 'custom-leaflet-pin',
+        html: `
+            <div style="position: relative; width: 34px; height: 44px; filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.35)); cursor: pointer;">
+                <svg width="34" height="44" viewBox="0 0 34 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 0C7.611 0 0 7.611 0 17C0 29.75 17 44 17 44C17 44 34 29.75 34 17C34 7.611 26.389 0 17 0Z" fill="#C8102E"/>
+                    <circle cx="17" cy="16" r="7" fill="white"/>
+                    <circle cx="17" cy="16" r="3.5" fill="#0056B3"/>
+                </svg>
+            </div>
+        `,
+        iconSize: [34, 44],
+        iconAnchor: [17, 44],
+        popupAnchor: [0, -42]
+    });
+
     // Inisialisasi Peta
     const map = L.map('map').setView([defaultLat, defaultLng], 16);
 
@@ -184,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         inputLat.value = defaultLat;
         inputLng.value = defaultLng;
         
-        marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map)
+        marker = L.marker([defaultLat, defaultLng], { icon: customPinIcon, draggable: true }).addTo(map)
             .bindPopup('<b class="text-xs text-slate-800 font-bold">📍 Kantor PT. KALJ</b>').openPopup();
 
         circle = L.circle([defaultLat, defaultLng], {
@@ -209,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (marker) {
             marker.setLatLng([lat, lng]).openPopup();
         } else {
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map)
+            marker = L.marker([lat, lng], { icon: customPinIcon, draggable: true }).addTo(map)
                 .bindPopup('<b class="text-xs text-slate-800 font-bold">📍 Kantor PT. KALJ</b>').openPopup();
             
             marker.on('dragend', function(e) {

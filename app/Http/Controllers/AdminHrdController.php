@@ -325,6 +325,28 @@ class AdminHrdController extends Controller
             'image' => 'nullable|string',
         ]);
 
+        $newDescriptor = $request->face_descriptor;
+        $threshold = 0.45;
+
+        // Validasi Duplikasi Wajah: Wajah tidak boleh cocok/sama dengan karyawan lain
+        $existingKaryawan = Karyawan::whereNotNull('face_data')
+            ->where('id', '!=', $karyawan->id)
+            ->get();
+
+        foreach ($existingKaryawan as $other) {
+            $otherDescriptor = $other->getFaceDescriptorArray();
+            if ($otherDescriptor) {
+                $distance = $this->euclideanDistance($newDescriptor, $otherDescriptor);
+                if ($distance <= $threshold) {
+                    $similarity = round(max(0, (1 - $distance)) * 100, 1);
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Perekaman gagal! Wajah ini terdeteksi identik dengan karyawan lain: {$other->nama_lengkap} (NIP: {$other->nip}) dengan tingkat kemiripan {$similarity}%. Satu wajah hanya dapat terdaftar untuk 1 akun karyawan.",
+                    ], 422);
+                }
+            }
+        }
+
         $updateData = [
             'face_data' => json_encode($request->face_descriptor),
         ];
@@ -350,5 +372,18 @@ class AdminHrdController extends Controller
             'message' => 'Data deskriptor wajah & foto profil berhasil disimpan untuk ' . $karyawan->nama_lengkap,
             'foto_url' => $karyawan->foto_url,
         ]);
+    }
+
+    /**
+     * Euclidean distance antara dua face descriptor 128-d
+     */
+    private function euclideanDistance(array $desc1, array $desc2): float
+    {
+        $sum = 0;
+        foreach ($desc1 as $i => $val) {
+            $diff = $val - ($desc2[$i] ?? 0);
+            $sum += $diff * $diff;
+        }
+        return sqrt($sum);
     }
 }
