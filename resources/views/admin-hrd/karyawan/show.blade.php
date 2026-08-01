@@ -11,9 +11,15 @@
                     <span class="badge {{ $karyawan->status === 'aktif' ? 'badge-green' : 'badge-red' }}">{{ ucfirst($karyawan->status) }}</span>
                     @if($karyawan->face_data)<span class="badge badge-purple">✓ Face Enrolled</span>@endif
                 </div>
-                <div class="mt-4 flex gap-2 justify-center">
+                <div class="mt-4 flex flex-wrap gap-2 justify-center">
                     <a href="{{ route('admin-hrd.karyawan.edit', $karyawan) }}" class="btn-secondary text-sm">Edit</a>
                     <a href="{{ route('admin-hrd.karyawan.face-enrollment', $karyawan) }}" class="btn-primary text-sm">Face Enroll</a>
+                    <form method="POST" action="{{ route('admin-hrd.karyawan.toggle-status', $karyawan) }}" class="inline" onsubmit="return confirm('{{ $karyawan->status === 'aktif' ? 'Nonaktifkan akun karyawan ini?' : 'Aktifkan kembali akun karyawan ini?' }}')">
+                        @csrf @method('PATCH')
+                        <button type="submit" class="px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors {{ $karyawan->status === 'aktif' ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' }}">
+                            {{ $karyawan->status === 'aktif' ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}
+                        </button>
+                    </form>
                 </div>
             </div>
 

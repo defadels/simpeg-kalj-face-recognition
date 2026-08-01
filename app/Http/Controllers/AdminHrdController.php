@@ -196,7 +196,7 @@ class AdminHrdController extends Controller
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'role' => $validated['role'],
-            'is_active' => true,
+            'is_active' => ($validated['status'] === 'aktif'),
         ]);
         $user->assignRole($validated['role']);
 
@@ -274,6 +274,7 @@ class AdminHrdController extends Controller
             'nama' => $validated['nama_lengkap'],
             'email' => $validated['email'],
             'role' => $validated['role'],
+            'is_active' => ($validated['status'] === 'aktif'),
         ];
 
         if (!empty($validated['password'])) {
@@ -285,6 +286,19 @@ class AdminHrdController extends Controller
 
         return redirect()->route('admin-hrd.karyawan.index')
             ->with('success', 'Data karyawan berhasil diperbarui.');
+    }
+
+    public function toggleStatus(Karyawan $karyawan)
+    {
+        $newStatus = $karyawan->status === 'aktif' ? 'nonaktif' : 'aktif';
+        $karyawan->update(['status' => $newStatus]);
+
+        if ($karyawan->user) {
+            $karyawan->user->update(['is_active' => ($newStatus === 'aktif')]);
+        }
+
+        $statusText = $newStatus === 'aktif' ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Akun karyawan {$karyawan->nama_lengkap} berhasil {$statusText}.");
     }
 
     public function destroyKaryawan(Karyawan $karyawan)

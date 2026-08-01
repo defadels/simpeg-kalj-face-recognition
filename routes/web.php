@@ -31,14 +31,14 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'check.role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // User Management
-    Route::get('/users', [AdminController::class, 'indexUsers'])->name('users.index');
-    Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
-    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
-    Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
-    Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
-    Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
-    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+    // User Management (Dialihkan ke Data Karyawan)
+    Route::get('/users', fn() => redirect()->route('admin.karyawan.index'))->name('users.index');
+    Route::get('/users/create', fn() => redirect()->route('admin.karyawan.create'))->name('users.create');
+    Route::post('/users', fn() => redirect()->route('admin.karyawan.index'))->name('users.store');
+    Route::get('/users/{user}/edit', fn() => redirect()->route('admin.karyawan.index'))->name('users.edit');
+    Route::put('/users/{user}', fn() => redirect()->route('admin.karyawan.index'))->name('users.update');
+    Route::patch('/users/{user}/toggle-status', fn() => redirect()->route('admin.karyawan.index'))->name('users.toggle-status');
+    Route::delete('/users/{user}', fn() => redirect()->route('admin.karyawan.index'))->name('users.destroy');
 
     // Konfigurasi Sistem
     Route::get('/konfigurasi', [KonfigurasiSistemController::class, 'index'])->name('konfigurasi.index');
@@ -67,6 +67,7 @@ Route::middleware(['auth', 'check.role:admin'])->prefix('admin')->name('admin.')
     Route::get('/karyawan/{karyawan}', [AdminHrdController::class, 'showKaryawan'])->name('karyawan.show');
     Route::get('/karyawan/{karyawan}/edit', [AdminHrdController::class, 'editKaryawan'])->name('karyawan.edit');
     Route::put('/karyawan/{karyawan}', [AdminHrdController::class, 'updateKaryawan'])->name('karyawan.update');
+    Route::patch('/karyawan/{karyawan}/toggle-status', [AdminHrdController::class, 'toggleStatus'])->name('karyawan.toggle-status');
     Route::delete('/karyawan/{karyawan}', [AdminHrdController::class, 'destroyKaryawan'])->name('karyawan.destroy');
 
     // Face Enrollment
@@ -110,13 +111,13 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     // Super Admin aliases
     Route::name('super-admin.')->prefix('super-admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/users', [AdminController::class, 'indexUsers'])->name('users.index');
-        Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
-        Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
-        Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
-        Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
-        Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
-        Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+        Route::get('/users', fn() => redirect()->route('admin.karyawan.index'))->name('users.index');
+        Route::get('/users/create', fn() => redirect()->route('admin.karyawan.create'))->name('users.create');
+        Route::post('/users', fn() => redirect()->route('admin.karyawan.index'))->name('users.store');
+        Route::get('/users/{user}/edit', fn() => redirect()->route('admin.karyawan.index'))->name('users.edit');
+        Route::put('/users/{user}', fn() => redirect()->route('admin.karyawan.index'))->name('users.update');
+        Route::patch('/users/{user}/toggle-status', fn() => redirect()->route('admin.karyawan.index'))->name('users.toggle-status');
+        Route::delete('/users/{user}', fn() => redirect()->route('admin.karyawan.index'))->name('users.destroy');
         Route::get('/konfigurasi', [KonfigurasiSistemController::class, 'index'])->name('konfigurasi.index');
         Route::put('/konfigurasi', [KonfigurasiSistemController::class, 'update'])->name('konfigurasi.update');
     });
@@ -144,6 +145,7 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
         Route::get('/karyawan/{karyawan}', [AdminHrdController::class, 'showKaryawan'])->name('karyawan.show');
         Route::get('/karyawan/{karyawan}/edit', [AdminHrdController::class, 'editKaryawan'])->name('karyawan.edit');
         Route::put('/karyawan/{karyawan}', [AdminHrdController::class, 'updateKaryawan'])->name('karyawan.update');
+        Route::patch('/karyawan/{karyawan}/toggle-status', [AdminHrdController::class, 'toggleStatus'])->name('karyawan.toggle-status');
         Route::delete('/karyawan/{karyawan}', [AdminHrdController::class, 'destroyKaryawan'])->name('karyawan.destroy');
         Route::get('/karyawan/{karyawan}/face-enrollment', [AdminHrdController::class, 'faceEnrollment'])->name('karyawan.face-enrollment');
         Route::post('/karyawan/{karyawan}/face-descriptor', [AdminHrdController::class, 'storeFaceDescriptor'])->name('karyawan.face-descriptor');
