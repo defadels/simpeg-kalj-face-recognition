@@ -83,7 +83,7 @@
                 <div class="w-10 h-10 mx-auto rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </div>
-                <span class="block text-xs font-bold text-slate-700 mt-2">Monitor Absensi</span>
+                <span class="block text-xs font-bold text-slate-700 mt-2">Monitoring Absensi</span>
             </a>
 
             <a href="{{ route('admin.cuti-izin.index') }}" class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-all text-center group">

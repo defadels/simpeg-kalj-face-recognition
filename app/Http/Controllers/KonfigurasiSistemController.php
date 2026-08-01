@@ -19,8 +19,8 @@ class KonfigurasiSistemController extends Controller
             'lat_kantor' => 'nullable|numeric|between:-90,90',
             'lng_kantor' => 'nullable|numeric|between:-180,180',
             'radius_meter' => 'required|integer|min:10|max:5000',
-            'jam_masuk' => 'required|date_format:H:i',
-            'jam_keluar' => 'required|date_format:H:i',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_keluar' => 'nullable|date_format:H:i',
             'toleransi_menit' => 'required|integer|min:0|max:120',
         ]);
 

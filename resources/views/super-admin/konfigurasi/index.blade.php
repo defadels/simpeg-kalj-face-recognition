@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="title">Konfigurasi Sistem</x-slot>
-    <x-slot name="breadcrumb">Atur lokasi kantor, radius absensi, dan jam kerja</x-slot>
+    <x-slot name="breadcrumb">Atur lokasi koordinat kantor dan radius absensi</x-slot>
 
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         
@@ -8,7 +8,7 @@
         <div class="xl:col-span-5 card">
             <div class="flex items-center gap-2 mb-5 border-b border-slate-100 pb-3">
                 <div class="w-2.5 h-6 bg-[#0056B3] rounded-full"></div>
-                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Parameter Kantor & Waktu</h3>
+                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Parameter Kantor & Radius</h3>
             </div>
 
             <form method="POST" action="{{ route('super-admin.konfigurasi.update') }}" class="space-y-4" id="konfig-form">
@@ -36,24 +36,18 @@
                     @error('radius_meter')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="form-label" for="jam_masuk">Jam Masuk *</label>
-                        <input type="time" id="jam_masuk" name="jam_masuk" value="{{ old('jam_masuk', $konfigurasi?->jam_masuk ? substr($konfigurasi->jam_masuk, 0, 5) : '08:00') }}" class="form-input" required>
-                        @error('jam_masuk')<p class="form-error">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="form-label" for="jam_keluar">Jam Keluar *</label>
-                        <input type="time" id="jam_keluar" name="jam_keluar" value="{{ old('jam_keluar', $konfigurasi?->jam_keluar ? substr($konfigurasi->jam_keluar, 0, 5) : '17:00') }}" class="form-input" required>
-                        @error('jam_keluar')<p class="form-error">{{ $message }}</p>@enderror
-                    </div>
+                <div>
+                    <label class="form-label" for="toleransi_menit">Toleransi Keterlambatan Default (menit) *</label>
+                    <input type="number" id="toleransi_menit" name="toleransi_menit" value="{{ old('toleransi_menit', $konfigurasi?->toleransi_menit ?? 15) }}" min="0" max="120" class="form-input" required>
+                    <p class="text-[10px] text-slate-400 font-medium mt-1">Rentang waktu setelah jam masuk divisi yang masih dianggap tepat waktu</p>
+                    @error('toleransi_menit')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
 
-                <div>
-                    <label class="form-label" for="toleransi_menit">Toleransi Keterlambatan (menit) *</label>
-                    <input type="number" id="toleransi_menit" name="toleransi_menit" value="{{ old('toleransi_menit', $konfigurasi?->toleransi_menit ?? 15) }}" min="0" max="120" class="form-input" required>
-                    <p class="text-[10px] text-slate-400 font-medium mt-1">Rentang waktu setelah jam masuk yang masih dianggap tepat waktu</p>
-                    @error('toleransi_menit')<p class="form-error">{{ $message }}</p>@enderror
+                <div class="p-3.5 bg-sky-50 border border-sky-100 rounded-xl flex items-start gap-2.5">
+                    <svg class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div class="text-xs text-sky-800 font-medium leading-relaxed">
+                        <strong>Informasi Jam Kerja:</strong> Jam masuk dan jam keluar karyawan diatur secara tersendiri di setiap divisi pada menu <a href="{{ route('admin.divisi.index') }}" class="underline font-bold text-sky-900 hover:text-sky-700">Master Data Divisi</a>.
+                    </div>
                 </div>
 
                 @if($konfigurasi?->updated_by)

@@ -32,8 +32,41 @@
 
             @if($cutiIzin->lampiran)
                 <div class="mb-5">
-                    <div class="text-xs text-slate-500 mb-1">Lampiran</div>
-                    <a href="{{ asset('storage/' . $cutiIzin->lampiran) }}" target="_blank" class="btn-secondary text-sm">Lihat Lampiran</a>
+                    <div class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Dokumen / Lampiran Pendukung</div>
+                    @php
+                        $ext = strtolower(pathinfo($cutiIzin->lampiran, PATHINFO_EXTENSION));
+                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                        $fileUrl = asset('storage/' . $cutiIzin->lampiran);
+                    @endphp
+
+                    @if($isImage)
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                            <div class="overflow-hidden rounded-xl bg-slate-100 max-h-80 flex items-center justify-center">
+                                <img src="{{ $fileUrl }}" alt="Lampiran {{ $cutiIzin->karyawan->nama_lengkap }}" class="max-h-80 object-contain w-full rounded-xl">
+                            </div>
+                            <div class="flex items-center justify-between pt-1">
+                                <span class="text-xs text-slate-500 font-mono truncate max-w-[200px]">{{ basename($cutiIzin->lampiran) }}</span>
+                                <a href="{{ $fileUrl }}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs py-1.5 px-3">
+                                    🔍 Buka Ukuran Penuh ↗
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xs uppercase">
+                                    {{ $ext ?: 'DOC' }}
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-700 truncate max-w-[220px]">{{ basename($cutiIzin->lampiran) }}</div>
+                                    <div class="text-[10px] text-slate-400">Dokumen Lampiran Pengajuan</div>
+                                </div>
+                            </div>
+                            <a href="{{ $fileUrl }}" target="_blank" rel="noopener noreferrer" class="btn-primary text-xs py-2 px-4">
+                                📄 Buka Dokumen ↗
+                            </a>
+                        </div>
+                    @endif
                 </div>
             @endif
 
