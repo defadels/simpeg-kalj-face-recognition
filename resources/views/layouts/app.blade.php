@@ -21,7 +21,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800" x-data="{ mobileSidebarOpen: false }">
+<body class="h-full bg-slate-50 text-slate-800" x-data="{ mobileSidebarOpen: false, confirmLogoutOpen: false }">
 <div class="flex h-screen overflow-hidden">
     
     <!-- Sidebar for Desktop -->
@@ -116,13 +116,12 @@
                     <div class="text-slate-500 text-[10px] truncate mt-0.5 font-medium uppercase tracking-wider">{{ auth()->user()->role }}</div>
                 </div>
             </a>
-            <form method="POST" action="{{ route('logout') }}" class="mt-4">
-                @csrf
-                <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl text-xs font-semibold transition-all duration-200">
+            <div class="mt-4">
+                <button type="button" @click="confirmLogoutOpen = true" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl text-xs font-semibold transition-all duration-200">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     Logout
                 </button>
-            </form>
+            </div>
         </div>
     </aside>
 
@@ -183,6 +182,10 @@
                         <div class="text-slate-500 text-[9px] truncate font-medium uppercase tracking-wider">{{ auth()->user()->role }}</div>
                     </div>
                 </a>
+                <button type="button" @click="confirmLogoutOpen = true; mobileSidebarOpen = false" class="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white rounded-xl text-xs font-semibold transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </button>
             </div>
         </aside>
     </div>
@@ -240,6 +243,36 @@
             {{ $slot }}
         </div>
     </main>
+</div>
+
+<!-- Modal Konfirmasi Logout -->
+<div x-show="confirmLogoutOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4" style="display: none;">
+    <!-- Backdrop -->
+    <div x-show="confirmLogoutOpen" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="confirmLogoutOpen = false"></div>
+
+    <!-- Modal Box -->
+    <div x-show="confirmLogoutOpen" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="relative bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 text-center z-10 overflow-hidden">
+        <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-sm">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </div>
+
+        <h3 class="text-base font-extrabold text-slate-800">Konfirmasi Keluar</h3>
+        <p class="text-xs text-slate-500 mt-1.5 font-medium leading-relaxed">
+            Apakah Anda yakin ingin keluar dari sistem? Sesi kerja Anda akan diakhiri.
+        </p>
+
+        <div class="grid grid-cols-2 gap-3 mt-6">
+            <button type="button" @click="confirmLogoutOpen = false" class="btn-secondary justify-center py-2.5 text-xs font-bold">
+                Batal
+            </button>
+            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <button type="submit" class="w-full btn-danger justify-center py-2.5 text-xs font-bold shadow-md shadow-rose-500/20">
+                    Ya, Keluar
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Leaflet JS (Load secara lokal untuk mencegah pemblokiran CDN/Adblocker) -->
