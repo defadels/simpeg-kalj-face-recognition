@@ -428,6 +428,22 @@ const registerAbsensiApp = () => {
                 this.loading = true;
                 this.errorMessage = '';
 
+                // Tangkap snapshot webcam sebagai base64
+                let snapshotBase64 = null;
+                try {
+                    const video = document.getElementById('video');
+                    if (video && video.videoWidth > 0) {
+                        const snapCanvas = document.createElement('canvas');
+                        snapCanvas.width = video.videoWidth;
+                        snapCanvas.height = video.videoHeight;
+                        const snapCtx = snapCanvas.getContext('2d');
+                        snapCtx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+                        snapshotBase64 = snapCanvas.toDataURL('image/jpeg', 0.85);
+                    }
+                } catch(e) {
+                    console.warn('Gagal mengambil snapshot webcam:', e);
+                }
+
                 try {
                     const response = await fetch('{{ route('karyawan.absensi.proses') }}', {
                         method: 'POST',
@@ -440,6 +456,7 @@ const registerAbsensiApp = () => {
                             longitude: this.lng,
                             face_descriptor: this.faceDescriptor,
                             jenis: JENIS,
+                            foto_absensi: snapshotBase64,
                         }),
                     });
 

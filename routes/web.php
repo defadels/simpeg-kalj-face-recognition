@@ -76,6 +76,7 @@ Route::middleware(['auth', 'check.role:admin'])->prefix('admin')->name('admin.')
 
     // Monitor Absensi
     Route::get('/absensi/monitor', [AbsensiController::class, 'monitor'])->name('absensi.monitor');
+    Route::get('/absensi/monitor/{absensi}', [AbsensiController::class, 'showMonitorDetail'])->name('absensi.detail');
 
     // Approval Cuti/Izin
     Route::get('/cuti-izin', [CutiIzinController::class, 'indexApproval'])->name('cuti-izin.index');
@@ -99,6 +100,7 @@ Route::middleware(['auth', 'check.role:karyawan,admin'])->prefix('karyawan')->na
     Route::post('/absensi/check-lokasi', [AbsensiController::class, 'checkLokasi'])->name('absensi.check-lokasi');
     Route::post('/absensi/proses', [AbsensiController::class, 'prosesAbsensi'])->name('absensi.proses');
     Route::get('/absensi/riwayat', [AbsensiController::class, 'riwayat'])->name('absensi.riwayat');
+    Route::get('/absensi/riwayat/{absensi}', [AbsensiController::class, 'showKaryawanDetail'])->name('absensi.detail');
 
     // Cuti/Izin
     Route::get('/cuti-izin', [CutiIzinController::class, 'index'])->name('cuti-izin.index');
@@ -151,6 +153,7 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
         Route::post('/karyawan/{karyawan}/face-descriptor', [AdminHrdController::class, 'storeFaceDescriptor'])->name('karyawan.face-descriptor');
 
         Route::get('/absensi/monitor', [AbsensiController::class, 'monitor'])->name('absensi.monitor');
+        Route::get('/absensi/monitor/{absensi}', [AbsensiController::class, 'showMonitorDetail'])->name('absensi.detail');
         Route::get('/cuti-izin', [CutiIzinController::class, 'indexApproval'])->name('cuti-izin.index');
         Route::get('/cuti-izin/{cutiIzin}', [CutiIzinController::class, 'showApproval'])->name('cuti-izin.show');
         Route::patch('/cuti-izin/{cutiIzin}/approve', [CutiIzinController::class, 'approve'])->name('cuti-izin.approve');
@@ -170,6 +173,7 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
         Route::patch('/cuti-izin/{cutiIzin}/approve', [CutiIzinController::class, 'approve'])->name('cuti-izin.approve');
         Route::patch('/cuti-izin/{cutiIzin}/reject', [CutiIzinController::class, 'reject'])->name('cuti-izin.reject');
         Route::get('/absensi/monitor', [AbsensiController::class, 'monitor'])->name('absensi.monitor');
+        Route::get('/absensi/monitor/{absensi}', [AbsensiController::class, 'showMonitorDetail'])->name('absensi.detail');
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export-pdf');
         Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel'])->name('laporan.export-excel');

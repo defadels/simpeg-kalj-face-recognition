@@ -29,6 +29,15 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+
+        // Record login activity log
+        \App\Models\UserLoginLog::create([
+            'user_id' => $user->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'berhasil',
+            'logged_at' => now(),
+        ]);
         
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');

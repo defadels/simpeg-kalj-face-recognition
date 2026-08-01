@@ -78,7 +78,7 @@ class AbsensiController extends Controller
 
     /**
      * STEP 2: Proses absensi masuk/keluar dengan face descriptor (AJAX)
-     * Frontend kirim descriptor 128-d → backend hitung Euclidean distance
+     * Frontend kirim descriptor 128-d & snapshot foto → backend hitung Euclidean distance & simpan foto
      */
     public function prosesAbsensi(Request $request): JsonResponse
     {
@@ -88,6 +88,7 @@ class AbsensiController extends Controller
             'face_descriptor' => 'required|array|size:128',
             'face_descriptor.*' => 'required|numeric',
             'jenis' => 'required|in:masuk,keluar',
+            'foto_absensi' => 'nullable|string',
         ]);
 
         $karyawan = auth()->user()->karyawan;
@@ -126,16 +127,34 @@ class AbsensiController extends Controller
         }
 
         $distance = $this->euclideanDistance($request->face_descriptor, $faceDescriptor);
-        $threshold = 0.45;
+        $threshold = 0.60; // Toleransi jarak Euclidean 0.60 (Menerima kemiripan wajah >= 40%)
 
         if ($distance > $threshold) {
             return response()->json([
                 'success' => false,
-                'message' => "Verifikasi wajah gagal. Wajah tidak cocok dengan data terdaftar (Kemiripan: " . round(max(0, (1 - $distance)) * 100, 1) . "%). Pastikan Anda sendiri yang melakukan absensi.",
+                'message' => "Verifikasi wajah gagal. Kemiripan wajah (" . round(max(0, (1 - $distance)) * 100, 1) . "%) kurang dari batas minimum 40%. Pastikan Anda sendiri yang melakukan absensi.",
                 'distance' => round($distance, 4),
                 'threshold' => $threshold,
                 'status_face' => 'gagal',
             ], 422);
+        }
+
+        // Simpan snapshot foto absensi jika ada
+        $fotoPath = null;
+        if ($request->foto_absensi && preg_match('/^data:image\/(\w+);base64,/', $request->foto_absensi, $type)) {
+            $imageData = substr($request->foto_absensi, strpos($request->foto_absensi, ',') + 1);
+            $imageData = base64_decode($imageData);
+            
+            if ($imageData !== false) {
+                $ext = strtolower($type[1]) ?: 'jpg';
+                $dir = 'absensi';
+                if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($dir)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory($dir);
+                }
+                $filename = "{$dir}/foto_{$request->jenis}_{$karyawan->id}_" . time() . ".{$ext}";
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $imageData);
+                $fotoPath = $filename;
+            }
         }
 
         // Simpan absensi
@@ -156,6 +175,12 @@ class AbsensiController extends Controller
             $absensi->lng_masuk = $request->longitude;
             $absensi->status_lokasi = 'valid';
             $absensi->status_face = 'berhasil';
+            $absensi->face_distance_masuk = round($distance, 4);
+            $absensi->ip_masuk = $request->ip();
+            $absensi->user_agent_masuk = $request->userAgent();
+            if ($fotoPath) {
+                $absensi->foto_masuk = $fotoPath;
+            }
 
             // Tentukan status kehadiran berdasarkan jam masuk divisi karyawan (atau default konfigurasi sistem)
             $divisi = $karyawan->divisi;
@@ -188,6 +213,12 @@ class AbsensiController extends Controller
             $absensi->waktu_keluar = $sekarang;
             $absensi->lat_keluar = $request->latitude;
             $absensi->lng_keluar = $request->longitude;
+            $absensi->face_distance_keluar = round($distance, 4);
+            $absensi->ip_keluar = $request->ip();
+            $absensi->user_agent_keluar = $request->userAgent();
+            if ($fotoPath) {
+                $absensi->foto_keluar = $fotoPath;
+            }
 
             // Hitung jam kerja
             $masuk = Carbon::parse(today()->format('Y-m-d') . ' ' . $absensi->waktu_masuk);
@@ -248,6 +279,63 @@ class AbsensiController extends Controller
         $divisi = \App\Models\Divisi::all();
 
         return view('admin-hrd.absensi.monitor', compact('absensi', 'divisi'));
+    }
+
+    /**
+     * Detail monitoring absensi (kecocokan wajah & aktivitas login karyawan)
+     */
+    public function showMonitorDetail(Absensi $absensi)
+    {
+        $absensi->load(['karyawan.user', 'karyawan.divisi', 'karyawan.jabatan']);
+
+        $user = $absensi->karyawan?->user;
+        $loginLogs = $user
+            ? \App\Models\UserLoginLog::where('user_id', $user->id)
+                ->orderBy('logged_at', 'desc')
+                ->take(15)
+                ->get()
+            : collect([]);
+
+        $konfigurasi = KonfigurasiSistem::getActive();
+
+        // Hitung jarak Haversine ke kantor jika koordinat tersedia
+        $jarakMasuk = null;
+        if ($absensi->lat_masuk && $absensi->lng_masuk && $konfigurasi && $konfigurasi->isKonfigured()) {
+            $jarakMasuk = round($this->haversine($absensi->lat_masuk, $absensi->lng_masuk, $konfigurasi->lat_kantor, $konfigurasi->lng_kantor), 1);
+        }
+
+        $jarakKeluar = null;
+        if ($absensi->lat_keluar && $absensi->lng_keluar && $konfigurasi && $konfigurasi->isKonfigured()) {
+            $jarakKeluar = round($this->haversine($absensi->lat_keluar, $absensi->lng_keluar, $konfigurasi->lat_kantor, $konfigurasi->lng_kantor), 1);
+        }
+
+        return view('admin-hrd.absensi.detail', compact('absensi', 'loginLogs', 'konfigurasi', 'jarakMasuk', 'jarakKeluar'));
+    }
+
+    /**
+     * Detail absensi karyawan (self view)
+     */
+    public function showKaryawanDetail(Absensi $absensi)
+    {
+        $karyawan = auth()->user()->karyawan;
+        if (!$karyawan || ($absensi->karyawan_id !== $karyawan->id && !auth()->user()->isAdmin())) {
+            abort(403, 'Anda tidak memiliki akses ke data absensi ini.');
+        }
+
+        $absensi->load(['karyawan.divisi', 'karyawan.jabatan']);
+        $konfigurasi = KonfigurasiSistem::getActive();
+
+        $jarakMasuk = null;
+        if ($absensi->lat_masuk && $absensi->lng_masuk && $konfigurasi && $konfigurasi->isKonfigured()) {
+            $jarakMasuk = round($this->haversine($absensi->lat_masuk, $absensi->lng_masuk, $konfigurasi->lat_kantor, $konfigurasi->lng_kantor), 1);
+        }
+
+        $jarakKeluar = null;
+        if ($absensi->lat_keluar && $absensi->lng_keluar && $konfigurasi && $konfigurasi->isKonfigured()) {
+            $jarakKeluar = round($this->haversine($absensi->lat_keluar, $absensi->lng_keluar, $konfigurasi->lat_kantor, $konfigurasi->lng_kantor), 1);
+        }
+
+        return view('karyawan.absensi.detail', compact('absensi', 'konfigurasi', 'jarakMasuk', 'jarakKeluar'));
     }
 
     // ===================== HELPER METHODS =====================
