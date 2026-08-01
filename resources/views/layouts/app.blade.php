@@ -48,10 +48,6 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                     Dashboard Admin
                 </a>
-                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Kelola Pengguna
-                </a>
 
                 <div class="sidebar-group-label">Master Data</div>
                 <a href="{{ route('admin.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin.karyawan.*') ? 'active' : '' }}">
@@ -158,7 +154,6 @@
                 @if($user->isAdmin())
                     <div class="sidebar-group-label">Administrasi</div>
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard Admin</a>
-                    <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Kelola Pengguna</a>
                     <div class="sidebar-group-label">Master Data</div>
                     <a href="{{ route('admin.karyawan.index') }}" class="sidebar-link {{ request()->routeIs('admin.karyawan.*') ? 'active' : '' }}">Karyawan</a>
                     <a href="{{ route('admin.jabatan.index') }}" class="sidebar-link {{ request()->routeIs('admin.jabatan.*') ? 'active' : '' }}">Jabatan</a>
@@ -213,8 +208,8 @@
             <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
                     <div class="text-xs font-bold text-slate-600">{{ now()->isoFormat('dddd, D MMMM Y') }}</div>
-                    <div class="text-[10px] font-medium text-slate-400 mt-0.5" x-data="{}" x-init="setInterval(() => $el.textContent = new Date().toLocaleTimeString('id-ID'), 1000)">
-                        {{ now()->format('H:i:s') }}
+                    <div class="text-[10px] font-medium text-slate-400 mt-0.5" x-data="{}" x-init="setInterval(() => $el.textContent = new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + ' WIB', 1000)">
+                        {{ now()->format('H:i:s') }} WIB
                     </div>
                 </div>
             </div>

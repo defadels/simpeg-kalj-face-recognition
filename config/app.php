@@ -59,7 +59,11 @@ return [
     | Application Timezone
     |--------------------------------------------------------------------------
     |
-    'timezone' => 'Asia/Jakarta',
+    | This location will be used by the PHP date and date-time functions.
+    |
+    */
+
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------

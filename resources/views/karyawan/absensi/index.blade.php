@@ -15,7 +15,12 @@
                         </p>
                     @endif
                 </div>
-                <span class="text-xs font-bold text-slate-400 self-start sm:self-auto">{{ now()->isoFormat('dddd, D MMMM Y') }}</span>
+                <div class="text-right self-start sm:self-auto">
+                    <div class="text-xs font-bold text-slate-500">{{ now()->isoFormat('dddd, D MMMM Y') }}</div>
+                    <div class="text-xs font-mono font-extrabold text-[#0056B3] mt-0.5" x-data="{}" x-init="setInterval(() => $el.textContent = new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + ' WIB', 1000)">
+                        {{ now()->format('H:i:s') }} WIB
+                    </div>
+                </div>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
@@ -87,6 +92,9 @@
                     <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">
                         {{ !$sudahMasuk ? 'Perekaman Absen Masuk' : 'Perekaman Absen Keluar' }}
                     </h3>
+                    <div class="flex items-center gap-1.5 px-3 py-1 bg-sky-50 text-[#0056B3] rounded-xl border border-sky-100 font-mono text-xs font-bold" x-data="{}" x-init="setInterval(() => $el.textContent = '🕒 ' + new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour12: false }) + ' WIB', 1000)">
+                        🕒 {{ now()->format('H:i:s') }} WIB
+                    </div>
                 </div>
 
                 {{-- Progress Steps --}}

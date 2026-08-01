@@ -76,9 +76,15 @@
                                     <a href="{{ route('admin-hrd.karyawan.face-enrollment', $kar) }}" class="text-purple-600 hover:text-purple-800 font-medium text-xs">Face Enroll</a>
                                     <a href="{{ route('admin-hrd.karyawan.show', $kar) }}" class="text-sky-600 hover:text-sky-800 font-medium text-xs">Detail</a>
                                     <a href="{{ route('admin-hrd.karyawan.edit', $kar) }}" class="text-amber-600 hover:text-amber-800 font-medium text-xs">Edit</a>
+                                    <form method="POST" action="{{ route('admin-hrd.karyawan.toggle-status', $kar) }}" class="inline" onsubmit="return confirm('{{ $kar->status === 'aktif' ? 'Nonaktifkan akun karyawan ini?' : 'Aktifkan kembali akun karyawan ini?' }}')">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="{{ $kar->status === 'aktif' ? 'text-rose-600 hover:text-rose-800' : 'text-emerald-600 hover:text-emerald-800' }} font-semibold text-xs">
+                                            {{ $kar->status === 'aktif' ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}
+                                        </button>
+                                    </form>
                                     <form method="POST" action="{{ route('admin-hrd.karyawan.destroy', $kar) }}" class="inline" onsubmit="return confirm('Hapus karyawan ini? Data user terkait juga akan dihapus.')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700 font-medium text-xs">Hapus</button>
+                                        <button type="submit" class="text-slate-400 hover:text-red-600 font-medium text-xs">Hapus</button>
                                     </form>
                                 </div>
                             </td>

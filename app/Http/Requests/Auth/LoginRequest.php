@@ -46,7 +46,17 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Email atau Password salah',
+            ]);
+        }
+
+        $user = Auth::user();
+        if (!$user->is_active || ($user->karyawan && $user->karyawan->status === 'nonaktif')) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Email atau Password salah',
             ]);
         }
 
