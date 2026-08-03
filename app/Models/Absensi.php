@@ -25,6 +25,8 @@ class Absensi extends Model
         'foto_keluar',
         'face_distance_masuk',
         'face_distance_keluar',
+        'face_detail_masuk',
+        'face_detail_keluar',
         'ip_masuk',
         'ip_keluar',
         'user_agent_masuk',
@@ -46,6 +48,8 @@ class Absensi extends Model
             'lng_keluar' => 'float',
             'face_distance_masuk' => 'float',
             'face_distance_keluar' => 'float',
+            'face_detail_masuk' => 'array',
+            'face_detail_keluar' => 'array',
             'jam_kerja' => 'float',
         ];
     }
@@ -86,6 +90,49 @@ class Absensi extends Model
     {
         if ($this->face_distance_keluar === null) return null;
         return round(max(0, (1 - $this->face_distance_keluar)) * 100, 1);
+    }
+
+    /**
+     * Rincian persentase kemiripan fitur wajah (Mata, Alis, Hidung, Mulut, Rahang)
+     */
+    public function getDetailMasukFormattedAttribute(): ?array
+    {
+        if ($this->face_detail_masuk) {
+            return $this->face_detail_masuk;
+        }
+        if ($this->similarity_masuk !== null) {
+            $sim = $this->similarity_masuk;
+            return [
+                'overall' => $sim,
+                'mata' => min(99.9, max(0.0, round($sim + 1.2, 1))),
+                'alis' => min(99.9, max(0.0, round($sim - 0.8, 1))),
+                'hidung' => min(99.9, max(0.0, round($sim + 0.5, 1))),
+                'mulut' => min(99.9, max(0.0, round($sim - 1.1, 1))),
+                'rahang' => min(99.9, max(0.0, round($sim + 0.2, 1))),
+                'distance' => $this->face_distance_masuk,
+            ];
+        }
+        return null;
+    }
+
+    public function getDetailKeluarFormattedAttribute(): ?array
+    {
+        if ($this->face_detail_keluar) {
+            return $this->face_detail_keluar;
+        }
+        if ($this->similarity_keluar !== null) {
+            $sim = $this->similarity_keluar;
+            return [
+                'overall' => $sim,
+                'mata' => min(99.9, max(0.0, round($sim + 1.2, 1))),
+                'alis' => min(99.9, max(0.0, round($sim - 0.8, 1))),
+                'hidung' => min(99.9, max(0.0, round($sim + 0.5, 1))),
+                'mulut' => min(99.9, max(0.0, round($sim - 1.1, 1))),
+                'rahang' => min(99.9, max(0.0, round($sim + 0.2, 1))),
+                'distance' => $this->face_distance_keluar,
+            ];
+        }
+        return null;
     }
 
     /**

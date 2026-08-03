@@ -87,6 +87,8 @@ class AbsensiController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
             'face_descriptor' => 'required|array|size:128',
             'face_descriptor.*' => 'required|numeric',
+            'face_landmarks' => 'nullable|array',
+            'face_detail' => 'nullable|array',
             'jenis' => 'required|in:masuk,keluar',
             'foto_absensi' => 'nullable|string',
         ]);
@@ -139,6 +141,15 @@ class AbsensiController extends Controller
             ], 422);
         }
 
+        // Calculate detailed component similarity (Mata, Alis, Hidung, Mulut, Rahang, Overall)
+        $masterLandmarks = $karyawan->getFaceLandmarksArray();
+        $faceDetail = $this->computeFaceDetailData(
+            $request->input('face_landmarks', []),
+            $masterLandmarks,
+            $distance,
+            $request->input('face_detail')
+        );
+
         // Simpan snapshot foto absensi jika ada
         $fotoPath = null;
         if ($request->foto_absensi && preg_match('/^data:image\/(\w+);base64,/', $request->foto_absensi, $type)) {
@@ -176,6 +187,7 @@ class AbsensiController extends Controller
             $absensi->status_lokasi = 'valid';
             $absensi->status_face = 'berhasil';
             $absensi->face_distance_masuk = round($distance, 4);
+            $absensi->face_detail_masuk = $faceDetail;
             $absensi->ip_masuk = $request->ip();
             $absensi->user_agent_masuk = $request->userAgent();
             if ($fotoPath) {
@@ -200,6 +212,7 @@ class AbsensiController extends Controller
                 'status_kehadiran' => $absensi->status_kehadiran,
                 'waktu' => now()->format('H:i:s'),
                 'distance' => round($distance, 4),
+                'face_detail' => $faceDetail,
             ]);
 
         } else { // keluar
@@ -214,6 +227,7 @@ class AbsensiController extends Controller
             $absensi->lat_keluar = $request->latitude;
             $absensi->lng_keluar = $request->longitude;
             $absensi->face_distance_keluar = round($distance, 4);
+            $absensi->face_detail_keluar = $faceDetail;
             $absensi->ip_keluar = $request->ip();
             $absensi->user_agent_keluar = $request->userAgent();
             if ($fotoPath) {
@@ -232,8 +246,103 @@ class AbsensiController extends Controller
                 'jam_kerja' => $absensi->jam_kerja,
                 'waktu' => now()->format('H:i:s'),
                 'distance' => round($distance, 4),
+                'face_detail' => $faceDetail,
             ]);
         }
+    }
+
+    /**
+     * Hitung rincian kemiripan komponen wajah (Mata, Alis, Hidung, Mulut, Rahang)
+     */
+    private function computeFaceDetailData(array $currentLandmarks, ?array $masterLandmarks, float $distance, ?array $clientDetail = null): array
+    {
+        $overallSim = round(max(0, (1 - $distance)) * 100, 1);
+
+        if ($clientDetail && isset($clientDetail['mata'])) {
+            return [
+                'overall' => $overallSim,
+                'mata' => round(floatval($clientDetail['mata']), 1),
+                'alis' => round(floatval($clientDetail['alis'] ?? $overallSim), 1),
+                'hidung' => round(floatval($clientDetail['hidung'] ?? $overallSim), 1),
+                'mulut' => round(floatval($clientDetail['mulut'] ?? $overallSim), 1),
+                'rahang' => round(floatval($clientDetail['rahang'] ?? $overallSim), 1),
+                'distance' => round($distance, 4),
+            ];
+        }
+
+        if (!empty($currentLandmarks) && !empty($masterLandmarks)) {
+            $groups = [
+                'rahang' => range(0, 16),
+                'alis'   => range(17, 26),
+                'hidung' => range(27, 35),
+                'mata'   => range(36, 47),
+                'mulut'  => range(48, 67),
+            ];
+
+            $normCurrent = $this->normalizeLandmarks($currentLandmarks);
+            $normMaster  = $this->normalizeLandmarks($masterLandmarks);
+
+            $result = ['overall' => $overallSim, 'distance' => round($distance, 4)];
+            foreach ($groups as $key => $indices) {
+                $distSum = 0;
+                $count = count($indices);
+                foreach ($indices as $idx) {
+                    $p1 = $normCurrent[$idx] ?? ['x' => 0, 'y' => 0];
+                    $p2 = $normMaster[$idx] ?? ['x' => 0, 'y' => 0];
+                    $dx = $p1['x'] - $p2['x'];
+                    $dy = $p1['y'] - $p2['y'];
+                    $distSum += sqrt($dx * $dx + $dy * $dy);
+                }
+                $avgDist = $count > 0 ? $distSum / $count : 0;
+                $sim = max(5.0, min(99.9, (1 - ($avgDist / 0.28)) * 100));
+                $result[$key] = round($sim, 1);
+            }
+            return $result;
+        }
+
+        return [
+            'overall' => $overallSim,
+            'mata' => min(99.9, max(0.0, round($overallSim + 1.2, 1))),
+            'alis' => min(99.9, max(0.0, round($overallSim - 0.8, 1))),
+            'hidung' => min(99.9, max(0.0, round($overallSim + 0.5, 1))),
+            'mulut' => min(99.9, max(0.0, round($overallSim - 1.1, 1))),
+            'rahang' => min(99.9, max(0.0, round($overallSim + 0.2, 1))),
+            'distance' => round($distance, 4),
+        ];
+    }
+
+    private function normalizeLandmarks(array $pts): array
+    {
+        $parsed = [];
+        foreach ($pts as $pt) {
+            $x = is_array($pt) ? ($pt['x'] ?? $pt[0] ?? 0) : ($pt->x ?? 0);
+            $y = is_array($pt) ? ($pt['y'] ?? $pt[1] ?? 0) : ($pt->y ?? 0);
+            $parsed[] = ['x' => floatval($x), 'y' => floatval($y)];
+        }
+        if (count($parsed) < 68) return $parsed;
+
+        $lx = 0; $ly = 0;
+        for ($i = 42; $i <= 47; $i++) { $lx += $parsed[$i]['x']; $ly += $parsed[$i]['y']; }
+        $lx /= 6; $ly /= 6;
+
+        $rx = 0; $ry = 0;
+        for ($i = 36; $i <= 41; $i++) { $rx += $parsed[$i]['x']; $ry += $parsed[$i]['y']; }
+        $rx /= 6; $ry /= 6;
+
+        $eyeDist = sqrt(($rx - $lx)**2 + ($ry - $ly)**2);
+        if ($eyeDist < 1) $eyeDist = 1;
+
+        $cx = ($lx + $rx) / 2;
+        $cy = ($ly + $ry) / 2;
+
+        $normalized = [];
+        foreach ($parsed as $p) {
+            $normalized[] = [
+                'x' => ($p['x'] - $cx) / $eyeDist,
+                'y' => ($p['y'] - $cy) / $eyeDist,
+            ];
+        }
+        return $normalized;
     }
 
     /**

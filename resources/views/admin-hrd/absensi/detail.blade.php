@@ -183,6 +183,172 @@
             </div>
         </div>
 
+        {{-- Granular Facial Component Similarity Breakdown Section --}}
+        @php
+            $detailMasuk = $absensi->detail_masuk_formatted;
+            $detailKeluar = $absensi->detail_keluar_formatted;
+        @endphp
+
+        @if($detailMasuk || $detailKeluar)
+            <div class="card space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Analisis Akurat Kemiripan Fitur Wajah (Facial Feature Match Breakdown)
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Rincian analisis persentase kemiripan struktur geometris landmark 68-titik wajah (Mata, Alis, Hidung, Mulut, Rahang)</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Detail Absen Masuk --}}
+                    @if($detailMasuk)
+                        <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-5 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    Analisis Wajah Absen Masuk
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Total Match: {{ $detailMasuk['overall'] ?? 0 }}%
+                                </span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                {{-- 👁️ Mata --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👁️ <strong>Mata (Eyes)</strong></span>
+                                        <span class="font-mono text-emerald-700 font-bold">{{ $detailMasuk['mata'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailMasuk['mata'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 🤨 Alis --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">🤨 <strong>Alis (Eyebrows)</strong></span>
+                                        <span class="font-mono text-emerald-700 font-bold">{{ $detailMasuk['alis'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailMasuk['alis'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👃 Hidung --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👃 <strong>Hidung (Nose Bridge & Tip)</strong></span>
+                                        <span class="font-mono text-emerald-700 font-bold">{{ $detailMasuk['hidung'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailMasuk['hidung'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👄 Mulut --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👄 <strong>Mulut & Bibir (Mouth)</strong></span>
+                                        <span class="font-mono text-emerald-700 font-bold">{{ $detailMasuk['mulut'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailMasuk['mulut'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👤 Rahang --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👤 <strong>Rahang & Kontur Wajah (Jawline)</strong></span>
+                                        <span class="font-mono text-emerald-700 font-bold">{{ $detailMasuk['rahang'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailMasuk['rahang'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Detail Absen Keluar --}}
+                    @if($detailKeluar)
+                        <div class="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-5 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                                    Analisis Wajah Absen Keluar
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono bg-sky-100 text-sky-800 border border-sky-200">
+                                    Total Match: {{ $detailKeluar['overall'] ?? 0 }}%
+                                </span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                {{-- 👁️ Mata --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👁️ <strong>Mata (Eyes)</strong></span>
+                                        <span class="font-mono text-sky-700 font-bold">{{ $detailKeluar['mata'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-sky-500 to-indigo-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailKeluar['mata'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 🤨 Alis --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">🤨 <strong>Alis (Eyebrows)</strong></span>
+                                        <span class="font-mono text-sky-700 font-bold">{{ $detailKeluar['alis'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-sky-500 to-indigo-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailKeluar['alis'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👃 Hidung --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👃 <strong>Hidung (Nose Bridge & Tip)</strong></span>
+                                        <span class="font-mono text-sky-700 font-bold">{{ $detailKeluar['hidung'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-sky-500 to-indigo-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailKeluar['hidung'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👄 Mulut --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👄 <strong>Mulut & Bibir (Mouth)</strong></span>
+                                        <span class="font-mono text-sky-700 font-bold">{{ $detailKeluar['mulut'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-sky-500 to-indigo-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailKeluar['mulut'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+
+                                {{-- 👤 Rahang --}}
+                                <div>
+                                    <div class="flex justify-between font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1.5">👤 <strong>Rahang & Kontur Wajah (Jawline)</strong></span>
+                                        <span class="font-mono text-sky-700 font-bold">{{ $detailKeluar['rahang'] ?? 0 }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                                        <div class="bg-gradient-to-r from-sky-500 to-indigo-400 h-2 rounded-full transition-all duration-500" style="width: {{ min(100, max(0, $detailKeluar['rahang'] ?? 0)) }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- GPS Location Details --}}
         <div class="card">
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 mb-4">

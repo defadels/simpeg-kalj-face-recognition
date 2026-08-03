@@ -322,6 +322,7 @@ class AdminHrdController extends Controller
         $request->validate([
             'face_descriptor' => 'required|array|size:128',
             'face_descriptor.*' => 'required|numeric',
+            'face_landmarks' => 'nullable|array',
             'image' => 'nullable|string',
         ]);
 
@@ -350,6 +351,10 @@ class AdminHrdController extends Controller
         $updateData = [
             'face_data' => json_encode($request->face_descriptor),
         ];
+
+        if ($request->filled('face_landmarks')) {
+            $updateData['face_landmarks'] = json_encode($request->face_landmarks);
+        }
 
         if ($request->image && str_starts_with($request->image, 'data:image')) {
             if ($karyawan->foto) {

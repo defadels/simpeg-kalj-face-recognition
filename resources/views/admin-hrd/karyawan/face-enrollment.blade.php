@@ -212,6 +212,7 @@ const registerFaceEnrollApp = () => {
                         if (detections.length === 1) {
                             this.faceDetected = true;
                             this.faceDescriptor = Array.from(detections[0].descriptor);
+                            this.faceLandmarks = detections[0].landmarks.positions.map(p => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
 
                             const box = detections[0].detection.box;
                             ctx.strokeStyle = '#10b981';
@@ -220,6 +221,7 @@ const registerFaceEnrollApp = () => {
                         } else {
                             this.faceDetected = false;
                             this.faceDescriptor = null;
+                            this.faceLandmarks = null;
                         }
                     } catch(err) {
                         console.error('Detection error:', err);
@@ -265,12 +267,15 @@ const registerFaceEnrollApp = () => {
                 if (detections.length === 0) {
                     this.uploadFaceStatus = 'not-found';
                     this.faceDescriptor = null;
+                    this.faceLandmarks = null;
                 } else if (detections.length > 1) {
                     this.uploadFaceStatus = 'multiple';
                     this.faceDescriptor = null;
+                    this.faceLandmarks = null;
                 } else {
                     this.uploadFaceStatus = 'detected';
                     this.faceDescriptor = Array.from(detections[0].descriptor);
+                    this.faceLandmarks = detections[0].landmarks.positions.map(p => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
                 }
             },
 
@@ -302,6 +307,7 @@ const registerFaceEnrollApp = () => {
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
                         body: JSON.stringify({
                             face_descriptor: this.faceDescriptor,
+                            face_landmarks: this.faceLandmarks,
                             image: imageBase64,
                         }),
                     });
