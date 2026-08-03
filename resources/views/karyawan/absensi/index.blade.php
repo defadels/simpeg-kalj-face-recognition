@@ -379,6 +379,7 @@ const registerAbsensiApp = () => {
                         if (detections.length === 1) {
                             this.faceStatus = 'detected';
                             this.faceDescriptor = Array.from(detections[0].descriptor);
+                            this.faceLandmarks = detections[0].landmarks.positions.map(p => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
 
                             // Draw green matching square around detected face
                             const box = detections[0].detection.box;
@@ -388,9 +389,11 @@ const registerAbsensiApp = () => {
                         } else if (detections.length === 0) {
                             this.faceStatus = 'no-face';
                             this.faceDescriptor = null;
+                            this.faceLandmarks = null;
                         } else {
                             this.faceStatus = 'no-face';
                             this.faceDescriptor = null;
+                            this.faceLandmarks = null;
                             
                             // Warning for multiple faces detected
                             ctx.fillStyle = 'rgba(200, 16, 46, 0.85)';
@@ -417,6 +420,7 @@ const registerAbsensiApp = () => {
                 }
                 this.faceStatus = 'detecting';
                 this.faceDescriptor = null;
+                this.faceLandmarks = null;
             },
 
             async rekamAbsen() {
@@ -455,6 +459,7 @@ const registerAbsensiApp = () => {
                             latitude: this.lat,
                             longitude: this.lng,
                             face_descriptor: this.faceDescriptor,
+                            face_landmarks: this.faceLandmarks,
                             jenis: JENIS,
                             foto_absensi: snapshotBase64,
                         }),

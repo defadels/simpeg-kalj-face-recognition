@@ -23,6 +23,7 @@ class Karyawan extends Model
         'no_telp',
         'foto',
         'face_data',
+        'face_landmarks',
         'tanggal_masuk',
         'saldo_cuti',
         'status',
@@ -76,6 +77,17 @@ class Karyawan extends Model
             return null;
         }
         return json_decode($this->face_data, true);
+    }
+
+    /**
+     * Mendapatkan face landmarks 68 titik sebagai array PHP
+     */
+    public function getFaceLandmarksArray(): ?array
+    {
+        if (!$this->face_landmarks) {
+            return null;
+        }
+        return json_decode($this->face_landmarks, true);
     }
 
     /**
