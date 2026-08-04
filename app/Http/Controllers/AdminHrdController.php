@@ -306,6 +306,9 @@ class AdminHrdController extends Controller
         if ($karyawan->foto) {
             Storage::disk('public')->delete($karyawan->foto);
         }
+        if ($karyawan->foto_enrollment) {
+            Storage::disk('public')->delete($karyawan->foto_enrollment);
+        }
         $karyawan->user()->delete(); // cascade ke karyawan
         return redirect()->route('admin-hrd.karyawan.index')
             ->with('success', 'Karyawan berhasil dihapus.');
@@ -357,16 +360,16 @@ class AdminHrdController extends Controller
         }
 
         if ($request->image && str_starts_with($request->image, 'data:image')) {
-            if ($karyawan->foto) {
-                Storage::disk('public')->delete($karyawan->foto);
+            if ($karyawan->foto_enrollment) {
+                Storage::disk('public')->delete($karyawan->foto_enrollment);
             }
 
             $imageParts = explode(';base64,', $request->image);
             if (count($imageParts) === 2) {
                 $imageDecoded = base64_decode($imageParts[1]);
-                $filename = 'karyawan/foto/face_' . $karyawan->id . '_' . time() . '.jpg';
+                $filename = 'karyawan/enrollment/face_' . $karyawan->id . '_' . time() . '.jpg';
                 Storage::disk('public')->put($filename, $imageDecoded);
-                $updateData['foto'] = $filename;
+                $updateData['foto_enrollment'] = $filename;
             }
         }
 
@@ -374,8 +377,9 @@ class AdminHrdController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data deskriptor wajah & foto profil berhasil disimpan untuk ' . $karyawan->nama_lengkap,
+            'message' => 'Data deskriptor wajah & foto enrollment berhasil disimpan untuk ' . $karyawan->nama_lengkap,
             'foto_url' => $karyawan->foto_url,
+            'foto_enrollment_url' => $karyawan->foto_enrollment_url,
         ]);
     }
 

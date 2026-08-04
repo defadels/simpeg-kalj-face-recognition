@@ -71,7 +71,7 @@
                             <td class="py-3 px-3">
                                 @if($row->status_face)
                                     <div class="flex items-center gap-2">
-                                        <img src="{{ $row->karyawan->foto_url }}" class="w-8 h-8 rounded-lg object-cover ring-2 ring-emerald-400/50" title="Foto Terdaftar {{ $row->karyawan->nama_lengkap }}" alt="">
+                                        <img src="{{ $row->karyawan->foto_enrollment_url ?? $row->karyawan->foto_url }}" class="w-8 h-8 rounded-lg object-cover ring-2 ring-emerald-400/50" title="Foto Terdaftar {{ $row->karyawan->nama_lengkap }}" alt="">
                                         <span class="badge {{ $row->status_face === 'berhasil' ? 'badge-green' : 'badge-red' }}">
                                             {{ $row->status_face === 'berhasil' ? '✓ Cocok' : '✗ Gagal' }}
                                         </span>

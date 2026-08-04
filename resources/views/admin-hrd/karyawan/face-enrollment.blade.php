@@ -5,17 +5,25 @@
     <div class="max-w-2xl mx-auto" x-data="faceEnrollApp()" x-init="init()">
         <div class="card">
             <!-- Header -->
-            <div class="flex items-center gap-4 mb-6">
-                <img src="{{ $karyawan->foto_url }}" class="w-14 h-14 rounded-2xl object-cover" alt="">
-                <div>
-                    <h3 class="font-semibold text-slate-800">{{ $karyawan->nama_lengkap }}</h3>
-                    <p class="text-slate-500 text-sm font-mono font-medium">ID: {{ $karyawan->nip }} • {{ $karyawan->jabatan?->nama_jabatan }}</p>
-                    @if($karyawan->face_data)
-                        <span class="badge badge-green mt-1">✓ Sudah ada data wajah terdaftar</span>
-                    @else
-                        <span class="badge badge-red mt-1">✗ Belum ada data wajah</span>
-                    @endif
+            <div class="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-4">
+                    <img src="{{ $karyawan->foto_url }}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-slate-200" alt="Foto Profil" title="Foto Profil Karyawan">
+                    <div>
+                        <h3 class="font-semibold text-slate-800">{{ $karyawan->nama_lengkap }}</h3>
+                        <p class="text-slate-500 text-sm font-mono font-medium">ID: {{ $karyawan->nip }} • {{ $karyawan->jabatan?->nama_jabatan }}</p>
+                        @if($karyawan->face_data)
+                            <span class="badge badge-green mt-1">✓ Wajah Terdaftar</span>
+                        @else
+                            <span class="badge badge-red mt-1">✗ Belum Ada Data Wajah</span>
+                        @endif
+                    </div>
                 </div>
+                @if($karyawan->foto_enrollment_url)
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 mb-1">Master Enrollment</span>
+                        <img src="{{ $karyawan->foto_enrollment_url }}" class="w-12 h-12 rounded-xl object-cover ring-2 ring-sky-400 shadow-xs" alt="Foto Face Enrollment">
+                    </div>
+                @endif
             </div>
 
             <!-- Tabs -->

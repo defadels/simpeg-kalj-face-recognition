@@ -22,6 +22,7 @@ class Karyawan extends Model
         'alamat',
         'no_telp',
         'foto',
+        'foto_enrollment',
         'face_data',
         'face_landmarks',
         'tanggal_masuk',
@@ -118,6 +119,14 @@ class Karyawan extends Model
             return asset('storage/' . $this->foto);
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap) . '&background=0EA5E9&color=fff&size=128';
+    }
+
+    public function getFotoEnrollmentUrlAttribute(): ?string
+    {
+        if ($this->foto_enrollment) {
+            return asset('storage/' . $this->foto_enrollment);
+        }
+        return null;
     }
 
     /**
