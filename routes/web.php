@@ -22,6 +22,11 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared!';
 });
 
+Route::get('/run-storage-link', function () {
+    Artisan::call('storage:link');
+    return 'The [storage:link] command has been executed successfully.';
+});
+
 
 Route::get('/key-generate', function() {
     Artisan::call('key:generate');
