@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — SIPEG KALJ</title>
     <meta name="description" content="Sistem Informasi Kepegawaian PT. Karya Agung Lestari Jaya">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0056B3">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SIPEG KALJ">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -97,6 +107,13 @@
             </div>
         </div>
 
+        <div class="text-center mt-4">
+            <a href="{{ route('landing') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0056B3] hover:underline">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Kembali ke Halaman Utama
+            </a>
+        </div>
+
         <p class="text-center text-slate-400 text-[10px] mt-6 font-semibold">© {{ date('Y') }} PT. Karya Agung Lestari Jaya. All rights reserved.</p>
     </div>
 
@@ -104,6 +121,14 @@
         function fillDemo(email) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = 'password';
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
         }
     </script>
 </body>
