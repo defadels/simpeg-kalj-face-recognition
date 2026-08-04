@@ -10,6 +10,43 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\KonfigurasiSistemController;
 use Illuminate\Support\Facades\Route;
 
+
+// In routes/web.php or a dedicated cache management route file
+Route::get('/clear-cache', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear'); // Clear config cache as well
+    Artisan::call('route:clear'); // Clear route cache
+    Artisan::call('view:clear'); // Clear view cache
+    Artisan::call('optimize:clear'); // Clear view cache
+
+    return 'Cache cleared!';
+});
+
+
+Route::get('/key-generate', function() {
+    Artisan::call('key:generate');
+    $output = Artisan::output();
+
+    return nl2br($output);
+});
+
+Route::get('/seeder', function (){
+    Artisan::call('db:seed');
+    return 'Database seeded!';
+});
+
+Route::get('/migrate', function () {
+    Artisan::call('migrate');
+    $output = Artisan::output();
+
+    if (str_contains($output, 'Nothing to migrate')) {
+        return 'Tidak ada yang di Migrate';
+    }
+
+    return nl2br($output);
+});
+
+
 // Landing Page (Halaman Utama)
 Route::get('/', function () {
     return view('welcome');
