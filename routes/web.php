@@ -10,15 +10,11 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\KonfigurasiSistemController;
 use Illuminate\Support\Facades\Route;
 
-// Welcome redirect ke login / dashboard
+// Landing Page (Halaman Utama)
 Route::get('/', function () {
-    if (auth()->check()) {
-        return auth()->user()->isAdmin()
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('karyawan.dashboard');
-    }
-    return redirect()->route('login');
-});
+    return view('welcome');
+})->name('landing');
+
 
 // Generic dashboard route alias
 Route::get('/dashboard', function () {
