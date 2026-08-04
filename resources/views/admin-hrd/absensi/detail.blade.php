@@ -77,7 +77,7 @@
                         📷 Foto Face Enrollment
                     </div>
                     <div class="relative w-44 h-44 rounded-2xl overflow-hidden shadow-inner ring-4 ring-sky-200/60 bg-slate-200">
-                        <img src="{{ $absensi->karyawan->foto_url }}" class="w-full h-full object-cover" alt="Foto Enrollment">
+                        <img src="{{ $absensi->karyawan->foto_enrollment_url ?? $absensi->karyawan->foto_url }}" class="w-full h-full object-cover" alt="Foto Enrollment">
                         <div class="absolute bottom-0 inset-x-0 bg-slate-900/70 backdrop-blur-xs text-white text-[10px] py-1 font-mono">
                             Master Enrollment
                         </div>
@@ -100,7 +100,7 @@
                                 Webcam Snapshot • {{ substr($absensi->waktu_masuk, 0, 5) }} WIB
                             </div>
                         @elseif($absensi->waktu_masuk)
-                            <img src="{{ $absensi->karyawan->foto_url }}" class="w-full h-full object-cover filter brightness-95" alt="Foto Karyawan">
+                            <img src="{{ $absensi->karyawan->foto_enrollment_url ?? $absensi->karyawan->foto_url }}" class="w-full h-full object-cover filter brightness-95" alt="Foto Karyawan">
                             <div class="absolute bottom-0 inset-x-0 bg-slate-900/80 backdrop-blur-xs text-amber-300 text-[10px] py-1 font-mono">
                                 Ref. Enrollment (Data Lama)
                             </div>
@@ -146,7 +146,7 @@
                                 Webcam Snapshot • {{ substr($absensi->waktu_keluar, 0, 5) }} WIB
                             </div>
                         @elseif($absensi->waktu_keluar)
-                            <img src="{{ $absensi->karyawan->foto_url }}" class="w-full h-full object-cover filter brightness-95" alt="Foto Karyawan">
+                            <img src="{{ $absensi->karyawan->foto_enrollment_url ?? $absensi->karyawan->foto_url }}" class="w-full h-full object-cover filter brightness-95" alt="Foto Karyawan">
                             <div class="absolute bottom-0 inset-x-0 bg-slate-900/80 backdrop-blur-xs text-amber-300 text-[10px] py-1 font-mono">
                                 Ref. Enrollment (Data Lama)
                             </div>
