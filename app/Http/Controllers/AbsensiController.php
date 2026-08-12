@@ -384,6 +384,10 @@ class AbsensiController extends Controller
             $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $request->divisi_id));
         }
 
+        if ($request->status_kehadiran) {
+            $query->where('status_kehadiran', $request->status_kehadiran);
+        }
+
         $absensi = $query->paginate(20)->withQueryString();
         $divisi = \App\Models\Divisi::all();
 

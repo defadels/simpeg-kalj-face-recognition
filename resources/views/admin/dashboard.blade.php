@@ -175,7 +175,8 @@
                                         {{ $cuti->karyawan->nama_lengkap ?? 'N/A' }}
                                     </td>
                                     <td class="py-3">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $cuti->jenis === 'cuti' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600' }}">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                                            {{ $cuti->jenis === 'cuti' ? 'bg-blue-50 text-blue-600' : ($cuti->jenis === 'sakit' ? 'bg-orange-50 text-orange-600' : 'bg-purple-50 text-purple-600') }}">
                                             {{ $cuti->jenis }}
                                         </span>
                                     </td>
@@ -190,5 +191,62 @@
                 </div>
             @endif
         </div>
+    </div>
+
+    {{-- Karyawan Belum Absen Hari Ini --}}
+    <div class="mt-8 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-slate-800 text-sm">Karyawan Belum Absen Hari Ini</h3>
+                @if($karyawanLupaAbsen->count() > 0)
+                    <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs font-bold rounded-full">{{ $karyawanLupaAbsen->count() }}</span>
+                @endif
+            </div>
+            <a href="{{ route('admin.absensi.monitor') }}" class="text-xs text-blue-600 hover:underline font-semibold">Lihat Monitoring →</a>
+        </div>
+
+        @if($karyawanLupaAbsen->isEmpty())
+            <div class="text-center py-8 text-slate-400 text-xs font-medium">
+                <svg class="w-10 h-10 mx-auto mb-2 text-emerald-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Semua karyawan aktif sudah melakukan absensi hari ini.
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-100">
+                            <th class="pb-3 font-semibold">Karyawan</th>
+                            <th class="pb-3 font-semibold">Divisi</th>
+                            <th class="pb-3 font-semibold">Jabatan</th>
+                            <th class="pb-3 font-semibold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        @foreach($karyawanLupaAbsen as $k)
+                            <tr>
+                                <td class="py-3 font-semibold text-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <img src="{{ $k->foto_url }}" class="w-7 h-7 rounded-lg object-cover" alt="">
+                                        {{ $k->nama_lengkap }}
+                                    </div>
+                                </td>
+                                <td class="py-3 text-slate-500">{{ $k->divisi?->nama_divisi ?? '-' }}</td>
+                                <td class="py-3 text-slate-500">{{ $k->jabatan?->nama_jabatan ?? '-' }}</td>
+                                <td class="py-3">
+                                    <span class="px-2 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-bold">Belum Absen</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </div>
 </x-app-layout>

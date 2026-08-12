@@ -32,13 +32,14 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             @foreach([
                 ['label' => 'Hadir', 'value' => $summary['total_hadir'], 'color' => 'emerald'],
                 ['label' => 'Terlambat', 'value' => $summary['total_terlambat'], 'color' => 'amber'],
                 ['label' => 'Alpha', 'value' => $summary['total_alpha'], 'color' => 'red'],
                 ['label' => 'Cuti', 'value' => $summary['total_cuti'], 'color' => 'purple'],
                 ['label' => 'Izin', 'value' => $summary['total_izin'], 'color' => 'sky'],
+                ['label' => 'Sakit', 'value' => $summary['total_sakit'], 'color' => 'orange'],
             ] as $s)
             <div class="p-4 bg-{{ $s['color'] }}-50 border border-{{ $s['color'] }}-100 rounded-xl text-center">
                 <div class="text-2xl font-bold text-{{ $s['color'] }}-600">{{ $s['value'] }}</div>

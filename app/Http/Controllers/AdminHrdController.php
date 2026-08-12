@@ -15,11 +15,22 @@ class AdminHrdController extends Controller
 {
     public function dashboard()
     {
+        // Karyawan aktif yang hari ini belum absen & tidak sedang cuti/izin/sakit disetujui
+        $karyawanLupaAbsen = Karyawan::where('status', 'aktif')
+            ->whereDoesntHave('absensi', fn($q) => $q->where('tanggal', today()))
+            ->whereDoesntHave('cutiIzin', fn($q) => $q
+                ->where('status', 'disetujui')
+                ->where('tanggal_mulai', '<=', today())
+                ->where('tanggal_selesai', '>=', today())
+            )
+            ->with(['jabatan', 'divisi'])
+            ->get();
+
         $stats = [
             'total_karyawan' => Karyawan::where('status', 'aktif')->count(),
             'hadir_hari_ini' => Absensi::where('tanggal', today())->whereIn('status_kehadiran', ['hadir', 'terlambat'])->count(),
             'cuti_pending' => CutiIzin::where('status', 'pending')->count(),
-            'alpha_hari_ini' => Karyawan::where('status', 'aktif')->count() - Absensi::where('tanggal', today())->count(),
+            'alpha_hari_ini' => $karyawanLupaAbsen->count(),
         ];
 
         $absensiHariIni = Absensi::with('karyawan.divisi')
@@ -34,7 +45,7 @@ class AdminHrdController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin-hrd.dashboard', compact('stats', 'absensiHariIni', 'cutiPending'));
+        return view('admin-hrd.dashboard', compact('stats', 'absensiHariIni', 'cutiPending', 'karyawanLupaAbsen'));
     }
 
     // ===================== JABATAN =====================

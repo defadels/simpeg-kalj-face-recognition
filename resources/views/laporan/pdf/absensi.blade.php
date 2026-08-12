@@ -24,6 +24,7 @@
         .badge-red { background: #fee2e2; color: #991b1b; }
         .badge-blue { background: #dbeafe; color: #1e40af; }
         .badge-purple { background: #f3e8ff; color: #6b21a8; }
+        .badge-orange { background: #fff7ed; color: #c2410c; }
         .footer { margin-top: 20px; font-size: 8pt; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
         .summary { display: flex; gap: 10px; margin-bottom: 16px; }
         .summary-item { flex: 1; text-align: center; padding: 8px; border-radius: 4px; }
@@ -67,6 +68,7 @@
                         'alpha' => 'badge-red',
                         'cuti' => 'badge-purple',
                         'izin' => 'badge-blue',
+                        'sakit' => 'badge-orange',
                         default => '',
                     };
                     $label = match($row->status_kehadiran) {
@@ -75,6 +77,7 @@
                         'alpha' => 'Alpha',
                         'cuti' => 'Cuti',
                         'izin' => 'Izin',
+                        'sakit' => 'Sakit',
                         default => '-',
                     };
                 @endphp

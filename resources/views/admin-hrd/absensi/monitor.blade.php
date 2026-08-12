@@ -13,6 +13,15 @@
                     <option value="{{ $d->id }}" {{ request('divisi_id') == $d->id ? 'selected' : '' }}>{{ $d->nama_divisi }}</option>
                 @endforeach
             </select>
+            <select name="status_kehadiran" class="form-input w-44">
+                <option value="">Semua Status</option>
+                <option value="hadir" {{ request('status_kehadiran') === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                <option value="terlambat" {{ request('status_kehadiran') === 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+                <option value="alpha" {{ request('status_kehadiran') === 'alpha' ? 'selected' : '' }}>Alpha</option>
+                <option value="izin" {{ request('status_kehadiran') === 'izin' ? 'selected' : '' }}>Izin</option>
+                <option value="cuti" {{ request('status_kehadiran') === 'cuti' ? 'selected' : '' }}>Cuti</option>
+                <option value="sakit" {{ request('status_kehadiran') === 'sakit' ? 'selected' : '' }}>Sakit</option>
+            </select>
             <button type="submit" class="btn-primary">Filter</button>
         </form>
 

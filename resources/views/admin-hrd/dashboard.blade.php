@@ -67,4 +67,41 @@
             </div>
         </div>
     </div>
+
+    {{-- Karyawan Belum Absen Hari Ini --}}
+    <div class="mt-5 card">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-slate-800">Karyawan Belum Absen Hari Ini</h3>
+                @if($karyawanLupaAbsen->count() > 0)
+                    <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs font-bold rounded-full">{{ $karyawanLupaAbsen->count() }}</span>
+                @endif
+            </div>
+            <a href="{{ route('admin-hrd.absensi.monitor') }}" class="text-sky-500 text-sm">Lihat Monitoring →</a>
+        </div>
+
+        @if($karyawanLupaAbsen->isEmpty())
+            <p class="text-slate-400 text-sm text-center py-4">
+                ✓ Semua karyawan aktif sudah melakukan absensi hari ini.
+            </p>
+        @else
+            <div class="space-y-2">
+                @foreach($karyawanLupaAbsen as $k)
+                    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50">
+                        <img src="{{ $k->foto_url }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0" alt="">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium truncate">{{ $k->nama_lengkap }}</div>
+                            <div class="text-xs text-slate-500">{{ $k->divisi?->nama_divisi ?? '-' }} • {{ $k->jabatan?->nama_jabatan ?? '-' }}</div>
+                        </div>
+                        <span class="px-2 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-bold flex-shrink-0">Belum Absen</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
 </x-app-layout>
