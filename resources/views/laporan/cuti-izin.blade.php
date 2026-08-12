@@ -63,7 +63,7 @@
                                     <div class="text-xs text-slate-500">{{ $row->karyawan->nip }}</div>
                                 </td>
                                 <td class="py-3 px-3">
-                                    <span class="badge {{ $row->jenis === 'cuti' ? 'badge-purple' : 'badge-blue' }}">{{ ucfirst($row->jenis) }}</span>
+                                    <span class="badge {{ $row->jenis === 'cuti' ? 'badge-purple' : ($row->jenis === 'sakit' ? 'badge-orange' : 'badge-blue') }}">{{ ucfirst($row->jenis) }}</span>
                                 </td>
                                 <td class="py-3 px-3 text-xs text-slate-600">
                                     {{ $row->tanggal_mulai->format('d/m/Y') }} — {{ $row->tanggal_selesai->format('d/m/Y') }}

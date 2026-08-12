@@ -34,9 +34,13 @@ class CutiIzinController extends Controller
 
     public function store(Request $request)
     {
+        // Untuk jenis 'sakit', izinkan tanggal mulai di masa lampau (retroaktif)
+        $isSakit = $request->input('jenis') === 'sakit';
         $validated = $request->validate([
-            'jenis' => 'required|in:cuti,izin',
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'jenis' => 'required|in:cuti,izin,sakit',
+            'tanggal_mulai' => $isSakit
+                ? 'required|date'
+                : 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required|string|min:10',
             'lampiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -173,14 +177,21 @@ class CutiIzinController extends Controller
     {
         $start = $cutiIzin->tanggal_mulai->copy();
         $end = $cutiIzin->tanggal_selesai->copy();
-        $statusAbsensi = $cutiIzin->jenis; // 'cuti' atau 'izin'
+        // Mapping: cuti -> cuti, izin -> izin, sakit -> sakit
+        $statusAbsensi = $cutiIzin->jenis;
+        $keterangan = match($cutiIzin->jenis) {
+            'cuti' => 'Cuti disetujui',
+            'izin' => 'Izin disetujui',
+            'sakit' => 'Sakit disetujui',
+            default => ucfirst($cutiIzin->jenis) . ' disetujui',
+        };
 
         $current = $start;
         while ($current->lte($end)) {
             if (!$current->isWeekend()) {
                 Absensi::updateOrCreate(
                     ['karyawan_id' => $cutiIzin->karyawan_id, 'tanggal' => $current->format('Y-m-d')],
-                    ['status_kehadiran' => $statusAbsensi, 'keterangan' => ucfirst($cutiIzin->jenis) . ' disetujui']
+                    ['status_kehadiran' => $statusAbsensi, 'keterangan' => $keterangan]
                 );
             }
             $current->addDay();

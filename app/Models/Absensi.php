@@ -159,6 +159,7 @@ class Absensi extends Model
             'alpha' => ['color' => 'red', 'label' => 'Alpha'],
             'izin' => ['color' => 'blue', 'label' => 'Izin'],
             'cuti' => ['color' => 'purple', 'label' => 'Cuti'],
+            'sakit' => ['color' => 'orange', 'label' => 'Sakit'],
             default => ['color' => 'gray', 'label' => '-'],
         };
     }

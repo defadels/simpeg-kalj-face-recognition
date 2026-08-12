@@ -1,21 +1,23 @@
 <x-app-layout>
-    <x-slot name="title">Ajukan Cuti/Izin</x-slot>
+    <x-slot name="title">Ajukan Cuti / Izin / Sakit</x-slot>
 
     <div class="max-w-2xl">
         <div class="card">
             <div class="mb-5">
-                <h3 class="font-semibold text-slate-800">Form Pengajuan Cuti/Izin</h3>
+                <h3 class="font-semibold text-slate-800">Form Pengajuan Cuti / Izin / Sakit</h3>
                 <p class="text-slate-500 text-sm mt-1">Saldo cuti Anda: <strong class="text-emerald-600">{{ $karyawan->saldo_cuti }} hari</strong></p>
             </div>
 
-            <form method="POST" action="{{ route('karyawan.cuti-izin.store') }}" enctype="multipart/form-data" class="space-y-4">
+            <form method="POST" action="{{ route('karyawan.cuti-izin.store') }}" enctype="multipart/form-data" class="space-y-4"
+                  x-data="{ jenis: '{{ old('jenis', 'cuti') }}' }">
                 @csrf
 
                 <div>
                     <label class="form-label">Jenis Permohonan *</label>
-                    <select name="jenis" class="form-input" required x-data x-model="jenis">
-                        <option value="cuti">Cuti</option>
-                        <option value="izin">Izin</option>
+                    <select name="jenis" class="form-input" required x-model="jenis">
+                        <option value="cuti" {{ old('jenis') === 'cuti' ? 'selected' : '' }}>Cuti</option>
+                        <option value="izin" {{ old('jenis') === 'izin' ? 'selected' : '' }}>Izin</option>
+                        <option value="sakit" {{ old('jenis') === 'sakit' ? 'selected' : '' }}>Sakit</option>
                     </select>
                     @error('jenis')<p class="form-error">{{ $message }}</p>@enderror
                 </div>
@@ -23,12 +25,17 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="form-label">Tanggal Mulai *</label>
-                        <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" min="{{ today()->format('Y-m-d') }}" class="form-input" required>
+                        {{-- Untuk jenis 'sakit', retroaktif diizinkan (tidak ada min date) --}}
+                        <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}"
+                               :min="jenis === 'sakit' ? '' : '{{ today()->format('Y-m-d') }}'"
+                               class="form-input" required>
                         @error('tanggal_mulai')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="form-label">Tanggal Selesai *</label>
-                        <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}" min="{{ today()->format('Y-m-d') }}" class="form-input" required>
+                        <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
+                               :min="jenis === 'sakit' ? '' : '{{ today()->format('Y-m-d') }}'"
+                               class="form-input" required>
                         @error('tanggal_selesai')<p class="form-error">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -47,7 +54,11 @@
                 </div>
 
                 <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p class="text-amber-700 text-sm"><strong>Catatan:</strong> Pengajuan cuti akan otomatis ditolak jika saldo cuti tidak mencukupi. Perhitungan hari tidak termasuk akhir pekan.</p>
+                    <p class="text-amber-700 text-sm"><strong>Catatan:</strong>
+                        Pengajuan <strong>Cuti</strong> memotong saldo cuti dan tidak dapat diajukan retroaktif.
+                        Pengajuan <strong>Sakit</strong> tidak memotong saldo cuti dan dapat diajukan untuk tanggal yang sudah lewat (disertai surat dokter).
+                        Perhitungan hari tidak termasuk akhir pekan.
+                    </p>
                 </div>
 
                 <div class="flex gap-3">

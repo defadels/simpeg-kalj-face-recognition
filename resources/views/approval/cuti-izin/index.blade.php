@@ -49,7 +49,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-3"><span class="badge {{ $row->jenis === 'cuti' ? 'badge-purple' : 'badge-blue' }}">{{ ucfirst($row->jenis) }}</span></td>
+                            <td class="py-3 px-3"><span class="badge {{ $row->jenis === 'cuti' ? 'badge-purple' : ($row->jenis === 'sakit' ? 'badge-orange' : 'badge-blue') }}">{{ ucfirst($row->jenis) }}</span></td>
                             <td class="py-3 px-3 text-xs text-slate-600">{{ $row->tanggal_mulai->format('d M') }} — {{ $row->tanggal_selesai->format('d M Y') }}</td>
                             <td class="py-3 px-3 text-center font-bold text-slate-700">{{ $row->jumlah_hari }}</td>
                             <td class="py-3 px-3"><span class="badge badge-{{ $badge['color'] }}">{{ $badge['label'] }}</span></td>

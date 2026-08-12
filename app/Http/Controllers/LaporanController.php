@@ -38,6 +38,7 @@ class LaporanController extends Controller
             'total_alpha' => $absensi->where('status_kehadiran', 'alpha')->count(),
             'total_cuti' => $absensi->where('status_kehadiran', 'cuti')->count(),
             'total_izin' => $absensi->where('status_kehadiran', 'izin')->count(),
+            'total_sakit' => $absensi->where('status_kehadiran', 'sakit')->count(),
         ];
 
         return view('laporan.index', compact('absensi', 'divisi', 'summary', 'periodeAwal', 'periodeAkhir', 'divisiId'));
