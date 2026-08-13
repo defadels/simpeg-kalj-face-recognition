@@ -42,7 +42,7 @@ class CatatAbsensiAlpha extends Command
         }
 
         $this->info("+---------------------------------------------------------+");
-        $this->info("¦          CATAT ABSENSI ALPHA — SIMPEG KALJ              ¦");
+        $this->info("|          CATAT ABSENSI ALPHA â€” SIMPEG KALJ              |");
         $this->info("+---------------------------------------------------------+");
         $this->line("  Tanggal target : {$tanggal->isoFormat('dddd, D MMMM Y')}");
         $this->line("  Mode           : " . ($isDryRun ? 'DRY RUN (tidak menyimpan)' : 'LIVE'));
@@ -120,19 +120,20 @@ class CatatAbsensiAlpha extends Command
                         'karyawan_id'      => $karyawan->id,
                         'tanggal'          => $tanggal->toDateString(),
                         'status_kehadiran' => 'alpha',
-                        'keterangan'       => 'Dicatat otomatis oleh sistem — karyawan tidak melakukan absensi',
+                        'keterangan'       => 'Dicatat otomatis oleh sistem â€” karyawan tidak melakukan absensi',
                     ]);
                 }
 
                 $tag = $isDryRun ? ' [DRY RUN]' : '';
-                $this->line("  OK  {$karyawan->nama_lengkap} ({$karyawan->nip}){$tag}");
+                $this->line("  OK   {$karyawan->nama_lengkap} ({$karyawan->nip}){$tag}");
                 $berhasil++;
             } catch (\Exception $e) {
                 // Jika sudah ada record (race condition / double-run), skip saja
                 if (str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'UNIQUE')) {
-                    $this->line("  --  {$karyawan->nama_lengkap} ({$karyawan->nip}) — record sudah ada, dilewati.");
+                    $this->line("  --   {$karyawan->nama_lengkap} ({$karyawan->nip}) â€” record sudah ada, dilewati.");
                 } else {
-                    $this->line("  !!  {$karyawan->nama_lengkap} ({$karyawan->nip}) — Error: {$e->getMessage()}");
+                    $this->error("  !!   {$karyawan->nama_lengkap} ({$karyawan->nip}) â€” {$e->getMessage()}");
+                    $this->line("       di: " . $e->getFile() . ':' . $e->getLine());
                     $gagal++;
                 }
             }
