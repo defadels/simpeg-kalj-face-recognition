@@ -451,6 +451,118 @@ class AbsensiController extends Controller
         return view('karyawan.absensi.detail', compact('absensi', 'konfigurasi', 'jarakMasuk', 'jarakKeluar'));
     }
 
+    /**
+     * Halaman absensi manual (admin only)
+     */
+    public function absensiManualIndex(Request $request)
+    {
+        $tanggal = $request->tanggal ? \Carbon\Carbon::parse($request->tanggal)->toDateString() : today()->toDateString();
+
+        $karyawanBelumAbsen = $this->getKaryawanBelumAbsen($tanggal);
+        $divisi = \App\Models\Divisi::all();
+
+        return view('admin.absensi.absensi-manual', compact('karyawanBelumAbsen', 'tanggal', 'divisi'));
+    }
+
+    /**
+     * AJAX: Refresh daftar karyawan belum absen berdasarkan tanggal
+     */
+    public function karyawanBelumAbsen(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+        ]);
+
+        $tanggal = \Carbon\Carbon::parse($request->tanggal)->toDateString();
+        $karyawan = $this->getKaryawanBelumAbsen($tanggal);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $karyawan->map(fn($k) => [
+                'id'          => $k->id,
+                'nip'         => $k->nip,
+                'nama'        => $k->nama_lengkap,
+                'divisi'      => $k->divisi?->nama_divisi ?? '-',
+                'jabatan'     => $k->jabatan?->nama_jabatan ?? '-',
+                'foto_url'    => $k->foto_url,
+                'jam_masuk'   => $k->divisi?->jam_masuk ?? null,
+                'jam_keluar'  => $k->divisi?->jam_keluar ?? null,
+            ]),
+        ]);
+    }
+
+    /**
+     * Simpan absensi manual (admin only) — tanpa face recognition
+     */
+    public function absensiManual(Request $request)
+    {
+        $validated = $request->validate([
+            'karyawan_id'      => 'required|exists:karyawan,id',
+            'tanggal'          => 'required|date',
+            'waktu_masuk'      => 'required|date_format:H:i',
+            'waktu_keluar'     => 'nullable|date_format:H:i|after:waktu_masuk',
+            'status_kehadiran' => 'required|in:hadir,terlambat,izin,sakit,cuti,alpha',
+            'keterangan'       => 'nullable|string|max:500',
+        ]);
+
+        $tanggal = \Carbon\Carbon::parse($validated['tanggal'])->toDateString();
+
+        // Cek apakah sudah ada record absensi di tanggal tersebut
+        $existing = Absensi::where('karyawan_id', $validated['karyawan_id'])
+            ->where('tanggal', $tanggal)
+            ->first();
+
+        if ($existing && $existing->waktu_masuk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Karyawan sudah memiliki data absensi masuk di tanggal tersebut.',
+            ], 422);
+        }
+
+        $keterangan = '[MANUAL] ' . ($validated['keterangan'] ?? 'Diisi oleh admin ' . auth()->user()->nama);
+
+        // Hitung jam kerja jika waktu keluar ada
+        $jamKerja = null;
+        if (!empty($validated['waktu_keluar'])) {
+            $masuk  = \Carbon\Carbon::parse($tanggal . ' ' . $validated['waktu_masuk'] . ':00');
+            $keluar = \Carbon\Carbon::parse($tanggal . ' ' . $validated['waktu_keluar'] . ':00');
+            $jamKerja = round($masuk->diffInMinutes($keluar) / 60, 2);
+        }
+
+        $absensi = $existing ?? new Absensi();
+        $absensi->karyawan_id      = $validated['karyawan_id'];
+        $absensi->tanggal          = $tanggal;
+        $absensi->waktu_masuk      = $validated['waktu_masuk'] . ':00';
+        $absensi->waktu_keluar     = !empty($validated['waktu_keluar']) ? $validated['waktu_keluar'] . ':00' : null;
+        $absensi->status_kehadiran = $validated['status_kehadiran'];
+        $absensi->jam_kerja        = $jamKerja;
+        $absensi->keterangan       = $keterangan;
+        // Field face/lokasi dibiarkan null (tidak perlu face recognition)
+        $absensi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Absensi manual berhasil disimpan.',
+        ]);
+    }
+
+    /**
+     * Helper: Ambil karyawan aktif yang belum absen di tanggal tertentu (exclude cuti/izin disetujui)
+     */
+    private function getKaryawanBelumAbsen(string $tanggal): \Illuminate\Database\Eloquent\Collection
+    {
+        return Karyawan::where('status', 'aktif')
+            ->whereDoesntHave('absensi', fn($q) => $q->where('tanggal', $tanggal)->whereNotNull('waktu_masuk'))
+            ->whereDoesntHave('cutiIzin', fn($q) => $q
+                ->where('status', 'disetujui')
+                ->where('tanggal_mulai', '<=', $tanggal)
+                ->where('tanggal_selesai', '>=', $tanggal)
+            )
+            ->with(['jabatan', 'divisi'])
+            ->orderBy('nama_lengkap')
+            ->get();
+    }
+
     // ===================== HELPER METHODS =====================
 
     /**

@@ -116,6 +116,11 @@ Route::middleware(['auth', 'check.role:admin'])->prefix('admin')->name('admin.')
     Route::get('/absensi/monitor', [AbsensiController::class, 'monitor'])->name('absensi.monitor');
     Route::get('/absensi/monitor/{absensi}', [AbsensiController::class, 'showMonitorDetail'])->name('absensi.detail');
 
+    // Absensi Manual
+    Route::get('/absensi/manual', [AbsensiController::class, 'absensiManualIndex'])->name('absensi.manual.index');
+    Route::get('/absensi/belum-absen', [AbsensiController::class, 'karyawanBelumAbsen'])->name('absensi.belum-absen');
+    Route::post('/absensi/manual', [AbsensiController::class, 'absensiManual'])->name('absensi.manual');
+
     // Approval Cuti/Izin
     Route::get('/cuti-izin', [CutiIzinController::class, 'indexApproval'])->name('cuti-izin.index');
     Route::get('/cuti-izin/{cutiIzin}', [CutiIzinController::class, 'showApproval'])->name('cuti-izin.show');
@@ -192,6 +197,9 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
 
         Route::get('/absensi/monitor', [AbsensiController::class, 'monitor'])->name('absensi.monitor');
         Route::get('/absensi/monitor/{absensi}', [AbsensiController::class, 'showMonitorDetail'])->name('absensi.detail');
+        Route::get('/absensi/manual', [AbsensiController::class, 'absensiManualIndex'])->name('absensi.manual.index');
+        Route::get('/absensi/belum-absen', [AbsensiController::class, 'karyawanBelumAbsen'])->name('absensi.belum-absen');
+        Route::post('/absensi/manual', [AbsensiController::class, 'absensiManual'])->name('absensi.manual');
         Route::get('/cuti-izin', [CutiIzinController::class, 'indexApproval'])->name('cuti-izin.index');
         Route::get('/cuti-izin/{cutiIzin}', [CutiIzinController::class, 'showApproval'])->name('cuti-izin.show');
         Route::patch('/cuti-izin/{cutiIzin}/approve', [CutiIzinController::class, 'approve'])->name('cuti-izin.approve');
