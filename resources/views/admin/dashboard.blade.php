@@ -99,6 +99,16 @@
                 </div>
                 <span class="block text-xs font-bold text-slate-700 mt-2">Konfigurasi</span>
             </a>
+
+            <a href="{{ route('admin.absensi.manual.index') }}" class="p-4 bg-white border border-amber-200 rounded-xl shadow-sm hover:shadow-md transition-all text-center group relative">
+                <div class="w-10 h-10 mx-auto rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <span class="block text-xs font-bold text-amber-700 mt-2">Absensi Manual</span>
+                @if($stats['alpha_hari_ini'] > 0)
+                    <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $stats['alpha_hari_ini'] }}</span>
+                @endif
+            </a>
         </div>
     </div>
 
@@ -207,7 +217,15 @@
                     <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs font-bold rounded-full">{{ $karyawanLupaAbsen->count() }}</span>
                 @endif
             </div>
-            <a href="{{ route('admin.absensi.monitor') }}" class="text-xs text-blue-600 hover:underline font-semibold">Lihat Monitoring →</a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.absensi.manual.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    Isi Absensi Manual
+                </a>
+                <a href="{{ route('admin.absensi.monitor') }}" class="text-xs text-blue-600 hover:underline font-semibold">Lihat Monitoring →</a>
+            </div>
         </div>
 
         @if($karyawanLupaAbsen->isEmpty())
@@ -226,6 +244,7 @@
                             <th class="pb-3 font-semibold">Divisi</th>
                             <th class="pb-3 font-semibold">Jabatan</th>
                             <th class="pb-3 font-semibold">Status</th>
+                            <th class="pb-3 font-semibold text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
@@ -241,6 +260,15 @@
                                 <td class="py-3 text-slate-500">{{ $k->jabatan?->nama_jabatan ?? '-' }}</td>
                                 <td class="py-3">
                                     <span class="px-2 py-1 bg-rose-50 text-rose-600 rounded-md text-[10px] font-bold">Belum Absen</span>
+                                </td>
+                                <td class="py-3 text-right">
+                                    <a href="{{ route('admin.absensi.manual.index', ['tanggal' => today()->toDateString()]) }}"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold rounded-lg transition-colors">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                        Isi Manual
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
