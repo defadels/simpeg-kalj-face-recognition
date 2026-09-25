@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Absensi;
 use App\Models\CutiIzin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AdminHrdController extends Controller
@@ -314,13 +315,36 @@ class AdminHrdController extends Controller
 
     public function destroyKaryawan(Karyawan $karyawan)
     {
-        if ($karyawan->foto) {
-            Storage::disk('public')->delete($karyawan->foto);
-        }
-        if ($karyawan->foto_enrollment) {
-            Storage::disk('public')->delete($karyawan->foto_enrollment);
-        }
-        $karyawan->user()->delete(); // cascade ke karyawan
+        // Hapus record absensi secara eksplisit agar berlaku konsisten untuk
+        // absensi biometrik maupun absensi manual, terlepas dari dukungan
+        // foreign-key cascade pada database yang dipakai.
+        $absensi = $karyawan->absensi()->get(['foto_masuk', 'foto_keluar']);
+        $filePaths = $absensi
+            ->flatMap(fn (Absensi $record) => [$record->foto_masuk, $record->foto_keluar])
+            ->push($karyawan->foto, $karyawan->foto_enrollment)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+        $user = $karyawan->user;
+
+        DB::transaction(function () use ($karyawan, $user) {
+            Absensi::where('karyawan_id', $karyawan->id)->delete();
+            CutiIzin::where('karyawan_id', $karyawan->id)->delete();
+
+            // Hapus pegawai terlebih dahulu; ini juga melepaskan relasi
+            // manajer_id pada divisi melalui FK nullOnDelete.
+            $karyawan->delete();
+
+            if ($user) {
+                $user->delete();
+            }
+        });
+
+        // File tidak ditangani oleh transaksi database, sehingga dibersihkan
+        // setelah seluruh record berhasil dihapus.
+        Storage::disk('public')->delete($filePaths);
+
         return redirect()->route('admin-hrd.karyawan.index')
             ->with('success', 'Karyawan berhasil dihapus.');
     }

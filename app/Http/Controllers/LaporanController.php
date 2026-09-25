@@ -8,6 +8,7 @@ use App\Models\Divisi;
 use App\Models\Karyawan;
 use App\Models\Laporan;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AbsensiExport;
@@ -51,14 +52,28 @@ class LaporanController extends Controller
         $periodeAwal = $request->periode_awal ?? now()->startOfMonth()->format('Y-m-d');
         $periodeAkhir = $request->periode_akhir ?? now()->endOfMonth()->format('Y-m-d');
 
-        $query = Absensi::with(['karyawan.jabatan', 'karyawan.divisi'])
-            ->whereBetween('tanggal', [$periodeAwal, $periodeAkhir]);
+        // Bentuk matriks: satu baris untuk satu karyawan dan satu kolom untuk
+        // satu tanggal. Karyawan tanpa record tetap dicetak agar format
+        // laporan sesuai daftar absensi harian.
+        $tanggal = collect(CarbonPeriod::create($periodeAwal, $periodeAkhir))
+            ->map(fn ($date) => $date->copy());
 
-        if ($divisiId) {
-            $query->whereHas('karyawan', fn($q) => $q->where('divisi_id', $divisiId));
-        }
+        $karyawan = Karyawan::with([
+            'divisi',
+            'absensi' => fn ($query) => $query
+                ->whereBetween('tanggal', [$periodeAwal, $periodeAkhir])
+                ->orderBy('tanggal'),
+        ])
+            ->where('status', 'aktif')
+            ->when($divisiId, fn ($query) => $query->where('divisi_id', $divisiId))
+            ->orderBy('divisi_id')
+            ->orderBy('nama_lengkap')
+            ->get();
 
-        $absensi = $query->orderBy('tanggal')->orderBy('karyawan_id')->get();
+        $karyawanPerDivisi = $karyawan->groupBy(
+            fn (Karyawan $karyawan) => $karyawan->divisi?->nama_divisi ?? 'Tanpa Divisi'
+        );
+        $tanggalPerHalaman = $tanggal->chunk(31);
         $divisiNama = $divisiId ? Divisi::find($divisiId)?->nama_divisi : 'Semua Divisi';
 
         // Simpan record laporan
@@ -70,7 +85,13 @@ class LaporanController extends Controller
             'dibuat_oleh' => auth()->id(),
         ]);
 
-        $pdf = Pdf::loadView('laporan.pdf.absensi', compact('absensi', 'periodeAwal', 'periodeAkhir', 'divisiNama'))
+        $pdf = Pdf::loadView('laporan.pdf.absensi', compact(
+            'karyawanPerDivisi',
+            'tanggalPerHalaman',
+            'periodeAwal',
+            'periodeAkhir',
+            'divisiNama'
+        ))
             ->setPaper('a4', 'landscape');
 
         return $pdf->download("laporan-absensi-{$periodeAwal}-{$periodeAkhir}.pdf");

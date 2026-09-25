@@ -456,6 +456,10 @@ class AbsensiController extends Controller
      */
     public function absensiManualIndex(Request $request)
     {
+        $request->validate([
+            'tanggal' => 'nullable|date|before_or_equal:today',
+        ]);
+
         $tanggal = $request->tanggal ? \Carbon\Carbon::parse($request->tanggal)->toDateString() : today()->toDateString();
 
         $karyawanBelumAbsen = $this->getKaryawanBelumAbsen($tanggal);

@@ -21,13 +21,13 @@
 
     {{-- Filter Tanggal --}}
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+        <form method="GET" action="{{ route('admin.absensi.manual.index') }}" class="flex flex-col sm:flex-row sm:items-end gap-4">
             <div class="flex-1">
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5">Pilih Tanggal</label>
-                <input type="date" id="filter-tanggal" value="{{ $tanggal }}" max="{{ today()->toDateString() }}" class="form-input w-full sm:w-64">
+                <input type="date" id="filter-tanggal" name="tanggal" value="{{ $tanggal }}" max="{{ today()->toDateString() }}" class="form-input w-full sm:w-64" required>
             </div>
             <div class="flex items-center gap-2">
-                <button id="btn-filter" type="button" class="btn-primary inline-flex items-center gap-2">
+                <button type="submit" class="btn-primary inline-flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
@@ -41,7 +41,7 @@
                     Monitor Absensi
                 </a>
             </div>
-        </div>
+        </form>
         <div class="mt-3 text-xs text-slate-500">
             Menampilkan karyawan belum absen pada:
             <span class="font-semibold text-slate-700" id="tanggal-label">{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('l, d F Y') }}</span>
@@ -269,8 +269,6 @@
     (function () {
         let activeTanggal = '{{ $tanggal }}';
 
-        const filterTanggal  = document.getElementById('filter-tanggal');
-        const btnFilter      = document.getElementById('btn-filter');
         const tbodyKaryawan  = document.getElementById('tbody-karyawan');
         const badgeCount     = document.getElementById('badge-count');
         const tanggalLabel   = document.getElementById('tanggal-label');
@@ -285,10 +283,6 @@
         const toastInner     = document.getElementById('toast-inner');
         const toastIcon      = document.getElementById('toast-icon');
         const toastMsg       = document.getElementById('toast-message');
-
-        // ── Filter ──
-        btnFilter.addEventListener('click', () => loadKaryawan(filterTanggal.value));
-        filterTanggal.addEventListener('keydown', e => { if (e.key === 'Enter') loadKaryawan(filterTanggal.value); });
 
         function formatTanggalID(isoDate) {
             const d = new Date(isoDate + 'T00:00:00');
